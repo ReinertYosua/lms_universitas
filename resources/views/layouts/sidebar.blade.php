@@ -43,12 +43,16 @@
                 @endauth
                     <li class="mega-menu mega-menu-sm">
                         <a class="has-arrow" href="javascript:void()" aria-expanded="false">
-                            <i class="icon-globe-alt menu-icon"></i><span class="nav-text">Courses</span>
+                            <i class="icon-globe-alt menu-icon"></i><span class="nav-text">Matakuliah</span>
                         </a>
                         <ul aria-expanded="false">
                             @auth
                             @if(Auth::user()->usertype == 2 )
-                            <li><a href="{{ route('list.courses') }}">Create Courses</a></li>
+                            <li><a href="{{ route('list.courses') }}">Buat Matakuliah</a></li>
+                            @endif
+
+                            @if(Auth::user()->usertype == 3 )
+                            <li><a href="{{ route('enroll.course') }}">Daftar Matakuliah</a></li>
                             @endif
                             @endauth
                             

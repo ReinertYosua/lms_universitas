@@ -74,7 +74,12 @@
                                     <label class="col-lg-4 col-form-label"><a href="#">Active</a>  <span class="text-danger">*</span>
                                     </label>
                                     <div class="col-lg-8">
-                                        <input type="checkbox" class="@error('active') is-invalid @enderror" name="active" id="" value="Y" {{  ($mk[0]->active == 'Y' ? 'checked' : '') }}> Set matakuliah aktif
+                                        <div class="input-group mb-3">
+                                                <div class="input-group-text">
+                                                <input type="checkbox" class="@error('active') is-invalid @enderror" name="active" id="" value="Y" {{  ($mk[0]->active == 'Y' ? 'checked' : '') }}>&nbsp;&nbsp;Set matakuliah aktif
+                                                </div>
+                                            <!-- <span class="form-control">Set matakuliah aktif</span> -->
+                                        </div>
                                         @error('active')
                                             <div class="text-danger">{{ $message }}</div>
                                         @enderror

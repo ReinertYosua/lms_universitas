@@ -9,6 +9,10 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\User as UserModel;
 use App\Models\Mahasiswa as MahasiswaModel;
 use App\Models\ScoreJawaban as ScoreModel;
+use App\Models\Periode as PeriodeModel;
+use App\Models\Matakuliah as MatakuliahModel;
+use App\Models\TransaksiMatakuliah as TransaksiMatakuliahModel;
+use Carbon\Carbon;
 
 class MahasiswaController extends Controller
 {
@@ -308,8 +312,87 @@ class MahasiswaController extends Controller
         
     }
 
-    public function hitungKuesioner(){
+    public function enrollcourse(){
+        $todayDate = Carbon::now();
+        //dd($todayDate);
+        $getPeriode = PeriodeModel::whereRaw('tanggal_awal <= ? and tanggal_akhir >= ?', [$todayDate, $todayDate])->get();
 
+       
+        //dd($getPeriode[0]->kode_periode);
+
+        $user=Auth::user();
+        $getmhs= UserModel::join('mahasiswa', 'users.id', '=', 'mahasiswa.user_id')
+                    ->where([
+                        ["mahasiswa.user_id", "=", $user->id],
+                    ])
+                    ->get();
+        //dd($getmhs[0]->jurusan_id);
+        
+        $getmtk = MatakuliahModel::where('id_jurusan',$getmhs[0]->jurusan_id)
+                ->where('active','Y')
+                ->get();
+
+        $periode="";
+        if($getPeriode->isEmpty()){
+            //get data matkul yang dipilih
+           $periode="";
+        }else{
+            $periode=$getPeriode[0]->kode_periode;
+        }
+        //get data matkul yang dipilih
+        $gettransaksi = TransaksiMatakuliahModel::join('mahasiswa', 'mahasiswa.nim', '=', 'transaksimatakuliah.nim')
+        ->join('matakuliah','matakuliah.kode_matakuliah','=','transaksimatakuliah.kode_matakuliah')
+        ->where([
+            ["mahasiswa.nim", "=", $getmhs[0]->nim],
+            ["transaksimatakuliah.periode","=",$periode]
+        ])
+        ->select('transaksimatakuliah.id','transaksimatakuliah.periode','transaksimatakuliah.kode_matakuliah','matakuliah.nama_matakuliah','matakuliah.sks','matakuliah.deskripsi','mahasiswa.nim','mahasiswa.namadepan','mahasiswa.namabelakang')
+        ->get();
+       
+
+        return view('layouts.student.listcoursesmhs')->with(['matkul'=>$getmtk,'periode'=>$periode,'transaksi'=>$gettransaksi]);
+        
+        
     }
-   
+
+    public function deletetrcourse($trid,$namamtk){
+        $tr=TransaksiMatakuliahModel::destroy($trid);
+        return redirect()->route('enroll.course')->with('success','Matakuliah '.$namamtk.' berhasil dihapus.');
+    }
+
+    public function addtrcourse($mkkode){
+        
+        // get nim from user login
+        $user=Auth::user();
+        $getnim = UserModel::join('mahasiswa', 'users.id', '=', 'mahasiswa.user_id')
+                    ->where([
+                        ["mahasiswa.user_id", "=", $user->id],
+                    ])
+                    ->get("mahasiswa.nim");
+        //dd($getnim[0]->nim);
+
+
+        $getmtk = MatakuliahModel::where('kode_matakuliah',$mkkode)->get();
+        $namamtk = $getmtk[0]->nama_matakuliah;
+        
+        //get periode by tanggal berjalan
+        $todayDate = Carbon::now();
+        $getPeriode = PeriodeModel::whereRaw('tanggal_awal <= ? and tanggal_akhir >= ?', [$todayDate, $todayDate])->get();
+        //dd($getPeriode[0]->kode_periode);
+        if(!$getPeriode->isEmpty())
+        {
+            if(TransaksiMatakuliahModel::where('nim', '=', $getnim[0]->nim)->where('periode', '=', $getPeriode[0]->kode_periode)->where('kode_matakuliah', '=', $mkkode)->exists()){
+                return redirect()->route('enroll.course')->with('danger','Matakuliah '.$namamtk.' sudah ditambahkan.');
+            }else{
+                $trans=TransaksiMatakuliahModel::create([
+                    "periode" => $getPeriode[0]->kode_periode,
+                    "nim" => $getnim[0]->nim,
+                    "kode_matakuliah" => $mkkode
+                ]);
+                return redirect()->route('enroll.course')->with('success','Matakuliah '.$namamtk.' berhasil ditambahkan.');
+            }
+            
+        }
+    }
+
 }

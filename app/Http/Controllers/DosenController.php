@@ -55,7 +55,7 @@ class DosenController extends Controller
     public function createcourse(Request $request){
         $rules =[
             'jurusan' => 'required',
-            'matakuliah' => 'required|string|min:3',
+            'matakuliah' => 'required|string|min:3|unique:matakuliah,nama_matakuliah',
             'sks' => 'required',
             'deskripsi' => 'required|string|min:3',
             'active' => 'required'
@@ -67,6 +67,7 @@ class DosenController extends Controller
             'max' => ':attribute maksimal berisi :max karakter.',
             'min' => ':attribute minimal berisi :min karakter.',
             'email' => ':attribute harus diisi dengan alamat email yang valid.',
+            'unique' => ':attribute sudah ada.',
         ]; 
         $validator = Validator::make($request->all(),$rules,$id);
 

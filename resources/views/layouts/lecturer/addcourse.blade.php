@@ -72,8 +72,13 @@
                                 <div class="form-group row">
                                     <label class="col-lg-4 col-form-label"><a href="#">Active</a>  <span class="text-danger">*</span>
                                     </label>
-                                    <div class="col-lg-8">
-                                        <input type="checkbox" class="@error('active') is-invalid @enderror" name="active" id="" value="Y"> Set matakuliah aktif
+                                    <div class="col-lg-6">
+                                        <div class="input-group mb-3">
+                                                <div class="input-group-text">
+                                                    <input type="checkbox" class="@error('active') is-invalid @enderror" name="active" id="" value="Y">&nbsp;&nbsp;Set matakuliah aktif
+                                                </div>
+                                            <!-- <span class="form-control">Set matakuliah aktif</span> -->
+                                        </div>
                                         @error('active')
                                             <div class="text-danger">{{ $message }}</div>
                                         @enderror
