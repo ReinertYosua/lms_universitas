@@ -10,12 +10,12 @@
                             <i class="icon-speedometer menu-icon"></i><span class="nav-text">Dashboard</span>
                         </a>
                         <ul aria-expanded="false">
-                            <li><a href="./index.html">Home </a></li>
+                            <li><a href="/">Home </a></li>
                             <!-- <li><a href="./index-2.html">Home 2</a></li> -->
                         </ul>
                     </li>
                     <li>
-                        <a href="widgets.html" aria-expanded="false">
+                        <a href="#" aria-expanded="false">
                             <i class="icon-badge menu-icon"></i><span class="nav-text">Profile</span>
                         </a>
                     </li>
@@ -52,13 +52,14 @@
                             @endif
 
                             @if(Auth::user()->usertype == 3 )
-                            <li><a href="{{ route('enroll.course') }}">Daftar Matakuliah</a></li>
+                            <li><a href="{{ route('enroll.course') }}">Rencana Studi</a></li>
+                            <li><a href="{{ route('schedule.course') }}">Matakuliah Saya</a></li>
                             @endif
                             @endauth
                             
                         </ul>
                     </li>
-                    <li class="mega-menu mega-menu-sm">
+                    <!-- <li class="mega-menu mega-menu-sm">
                         <a class="has-arrow" href="javascript:void()" aria-expanded="false">
                             <i class="icon-globe-alt menu-icon"></i><span class="nav-text">Personalization</span>
                         </a>
@@ -68,7 +69,7 @@
                             <li><a href="#">xxx</a></li>
                             <li><a href="#">xxx</a></li>
                         </ul>
-                    </li>
+                    </li> -->
                     
                     <!-- <li class="nav-label">Apps</li>
                     <li>

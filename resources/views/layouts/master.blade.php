@@ -19,6 +19,8 @@
     <link rel="stylesheet" href="{{asset('plugins')}}/chartist-plugin-tooltips/css/chartist-plugin-tooltip.css">
     <!-- Custom Stylesheet -->
     <link href="{{asset('css')}}/style.css" rel="stylesheet">
+
+    <link href="{{asset('css')}}/scrollertab.css" rel="stylesheet">
     <!-- <link href="{{asset('plugins')}}/jquery-steps/css/jquery.steps.css" rel="stylesheet"> -->
     <link href="{{asset('plugins')}}/tables/css/datatable/dataTables.bootstrap4.min.css" rel="stylesheet">
 
@@ -86,6 +88,8 @@
     <script src="{{asset('js')}}/settings.js"></script>
     <script src="{{asset('js')}}/gleek.js"></script>
     <script src="{{asset('js')}}/styleSwitcher.js"></script>
+
+    <script src="{{asset('js')}}/scrollertab.js"></script>
 
     <!-- Chartjs -->
     <script src="{{asset('plugins')}}/chart.js/Chart.bundle.min.js"></script>

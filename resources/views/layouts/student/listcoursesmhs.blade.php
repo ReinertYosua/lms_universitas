@@ -1,5 +1,5 @@
 @extends('layouts.master')
-@section('title','Daftar Matakuliah')
+@section('title','Rencana Studi')
 
 @section('content')
 @if($periode=="")

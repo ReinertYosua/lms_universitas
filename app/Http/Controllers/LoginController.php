@@ -57,11 +57,27 @@ class LoginController extends Controller
                 $request->session()->regenerate();
                 $user=Auth::user();
                 if($user->usertype == '1'){
+                    session(['fotouser' => "admin.png"]);
                     return redirect()->intended('/admin');
                 }else if($user->usertype == '2'){
+                    $getfotodsn = UserModel::join('dosen', 'users.id', '=', 'dosen.user_id')
+                            ->where([
+                                ["dosen.user_id", "=", $user->id],
+                            ])
+                            ->get("dosen.fotodsn");
+                    
+                    session(['fotouser' => "dosen/".$getfotodsn[0]->fotodsn]);
+
                     return redirect()->intended('/dosen');
                 }else if($user->usertype == '3'){
-                    //return redirect()->intended('/mahasiswa');
+                    $getfotomhs = UserModel::join('mahasiswa', 'users.id', '=', 'mahasiswa.user_id')
+                            ->where([
+                                ["mahasiswa.user_id", "=", $user->id],
+                            ])
+                            ->get("mahasiswa.fotomhs");
+                            
+                            session(['fotouser' => "mahasiswa/".$getfotomhs[0]->fotomhs]);
+
                     return redirect()->intended('/mahasiswa/kuesioner');
                 }
                 //return redirect()->intended('/');

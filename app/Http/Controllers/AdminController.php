@@ -7,6 +7,7 @@ use App\Models\User as UserModel;
 use App\Models\Mahasiswa as MahasiswaModel;
 use App\Models\Dosen as DosenModel;
 use App\Models\Jurusan as JurusanModel;
+use App\Models\ScoreJawaban as ScoreJawabanModel;
 use DB;
 
 class AdminController extends Controller
@@ -57,7 +58,7 @@ class AdminController extends Controller
         
     }
     public function gayabelajar(){
-        $getdatascore = ScoreModel::select('mahasiswa.nim','mahasiswa.namadepan','mahasiswa.fotomhs','mahasiswa.namabelakang', 'score_jawaban.*')
+        $getdatascore = ScoreJawabanModel::select('mahasiswa.nim','mahasiswa.namadepan','mahasiswa.fotomhs','mahasiswa.namabelakang', 'score_jawaban.*')
                 ->join('mahasiswa', 'mahasiswa.nim','=','score_jawaban.nim')
                 ->get();
 

@@ -37,6 +37,7 @@
                                                 <th>SKS</th>
                                                 <th>Jurusan</th>
                                                 <th>Deskripsi</th>
+                                                <th>Total Sesi</th>
                                                 <th>Active</th>
                                                 <th>Aksi</th>
                                             </tr>
@@ -49,6 +50,7 @@
                                                 <td>{{ $mk->sks }}</td>
                                                 <td>{{ $mk->jurusan }}</td>
                                                 <td>{{ $mk->deskripsi }}</td>
+                                                <td>{{ $mk->total_session }}</td>
                                                 <td>{{ $mk->active }}</td>
                                                 <td>
                                                     <a href="{{ route('detail.materi', encrypt($mk->id))}}" class=" btn btn-success" data-toggle="tooltip" data-placement="top" data-original-title="Tambah Materi Matakuliah"><i class="fa fa-list"></i></a>
@@ -72,6 +74,7 @@
                                                 <th>SKS</th>
                                                 <th>Jurusan</th>
                                                 <th>Deskripsi</th>
+                                                <th>Total Sesi</th>
                                                 <th>Active</th>
                                                 <th>Aksi</th>
                                             </tr>

@@ -12,6 +12,7 @@ use App\Models\ScoreJawaban as ScoreModel;
 use App\Models\Periode as PeriodeModel;
 use App\Models\Matakuliah as MatakuliahModel;
 use App\Models\TransaksiMatakuliah as TransaksiMatakuliahModel;
+use App\Models\MateriMatakuliah as MateriMatakuliahModel;
 use Carbon\Carbon;
 
 class MahasiswaController extends Controller
@@ -374,15 +375,29 @@ class MahasiswaController extends Controller
 
         $getmtk = MatakuliahModel::where('kode_matakuliah',$mkkode)->get();
         $namamtk = $getmtk[0]->nama_matakuliah;
+
         
         //get periode by tanggal berjalan
         $todayDate = Carbon::now();
         $getPeriode = PeriodeModel::whereRaw('tanggal_awal <= ? and tanggal_akhir >= ?', [$todayDate, $todayDate])->get();
         //dd($getPeriode[0]->kode_periode);
+
+
+        //=========== cek sks
+        $getsks = TransaksiMatakuliahModel::join('matakuliah','matakuliah.kode_matakuliah','=','transaksimatakuliah.kode_matakuliah')
+                    ->where([
+                        ["transaksimatakuliah.nim", "=", $getnim[0]->nim],
+                        ["transaksimatakuliah.periode","=",$getPeriode[0]->kode_periode]
+                    ])
+                    ->sum("matakuliah.sks");
+        // ==============
+        
         if(!$getPeriode->isEmpty())
         {
             if(TransaksiMatakuliahModel::where('nim', '=', $getnim[0]->nim)->where('periode', '=', $getPeriode[0]->kode_periode)->where('kode_matakuliah', '=', $mkkode)->exists()){
                 return redirect()->route('enroll.course')->with('danger','Matakuliah '.$namamtk.' sudah ditambahkan.');
+            }elseif(($getsks+0) >= 20){
+                return redirect()->route('enroll.course')->with('danger','Total SKS sudah lebih dari 20 SKS.');
             }else{
                 $trans=TransaksiMatakuliahModel::create([
                     "periode" => $getPeriode[0]->kode_periode,
@@ -393,6 +408,50 @@ class MahasiswaController extends Controller
             }
             
         }
+    }
+
+    public function schedulecourse(){
+        // get nim from user login
+        $user=Auth::user();
+        $getnim = UserModel::join('mahasiswa', 'users.id', '=', 'mahasiswa.user_id')
+                    ->where([
+                        ["mahasiswa.user_id", "=", $user->id],
+                    ])
+                    ->get("mahasiswa.nim");
+
+        //get periode by tanggal berjalan
+        $todayDate = Carbon::now();
+        $getPeriode = PeriodeModel::whereRaw('tanggal_awal <= ? and tanggal_akhir >= ?', [$todayDate, $todayDate])->get();
+        $periodtr ="";
+        //dd($getPeriode[0]->kode_periode);
+        if(!$getPeriode->isEmpty())
+        {
+            //get data matkul yang dipilih
+            $gettransaksi = TransaksiMatakuliahModel::join('mahasiswa', 'mahasiswa.nim', '=', 'transaksimatakuliah.nim')
+            ->join('matakuliah','matakuliah.kode_matakuliah','=','transaksimatakuliah.kode_matakuliah')
+            ->where([
+                ["mahasiswa.nim", "=", $getnim[0]->nim],
+                ["transaksimatakuliah.periode","=",$getPeriode[0]->kode_periode]
+            ])
+            ->select('transaksimatakuliah.id','transaksimatakuliah.periode','transaksimatakuliah.kode_matakuliah','matakuliah.nama_matakuliah','matakuliah.sks','matakuliah.deskripsi')
+            ->get();
+            
+        }
+
+
+        $getperiod = PeriodeModel::all();
+        return view('layouts.student.schedule')->with(['listperiode'=>$getperiod,'transaksi'=>$gettransaksi,'periode'=>$getPeriode[0]->kode_periode]);
+    }
+
+    public function detailschedule($trkodemtk, $periode){
+        //dd(decrypt($trkodemtk));
+        $getmateri = MateriMatakuliahModel::join('matakuliah','matakuliah.id','=','materi_matakuliah.id_matakuliah')
+                    ->where([["matakuliah.kode_matakuliah", "=", decrypt($trkodemtk)]])
+                    ->select('materi_matakuliah.id','materi_matakuliah.session','materi_matakuliah.materi','materi_matakuliah.jenis_materi','materi_matakuliah.deskripsi','materi_matakuliah.referensi','materi_matakuliah.file_materi')
+                    ->get();
+        //dd($getmateri);
+        return view('layouts.student.detailcourse')->with(['detailjadwal'=>$getmateri]);
+        
     }
 
 }

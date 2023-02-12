@@ -13,6 +13,7 @@ use App\Models\Dosen as DosenModel;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Response;
+use DB;
 
 
 class DosenController extends Controller
@@ -24,12 +25,18 @@ class DosenController extends Controller
 
     public function listcourses(){
         $iddosen = DosenModel::where('user_id',Auth::user()->id)->get();
-        $getdatacourse = MatakuliahModel::select('matakuliah.id','matakuliah.kode_matakuliah', 'matakuliah.nama_matakuliah', 'matakuliah.sks', 'matakuliah.deskripsi','matakuliah.active','jurusan.jurusan')
-                ->join('jurusan', 'jurusan.id','=','matakuliah.id_jurusan')
-                ->where('id_dosen',$iddosen[0]->id)
-                ->get();
-        
-        return view('layouts.lecturer.listcourses')->with(['matkul'=>$getdatacourse]);
+        // $getdatacourse = MatakuliahModel::select('matakuliah.id','matakuliah.kode_matakuliah', 'matakuliah.nama_matakuliah', 'matakuliah.sks', 'matakuliah.deskripsi','matakuliah.active','jurusan.jurusan')
+        //         ->join('jurusan', 'jurusan.id','=','matakuliah.id_jurusan')
+        //         ->where('id_dosen',$iddosen[0]->id)
+        //         ->get();
+
+        $getcourse = DB::table('matakuliah')
+                    ->select('matakuliah.id','matakuliah.kode_matakuliah', 'matakuliah.nama_matakuliah', 'matakuliah.sks', 'matakuliah.deskripsi','matakuliah.active','jurusan.jurusan',DB::raw('(select count(materi_matakuliah.id_matakuliah) from materi_matakuliah WHERE materi_matakuliah.id_matakuliah = matakuliah.id) as total_session'))
+                    ->join('jurusan', 'jurusan.id','=','matakuliah.id_jurusan')
+                    ->where('id_dosen',$iddosen[0]->id)
+                    ->get();
+
+        return view('layouts.lecturer.listcourses')->with(['matkul'=>$getcourse]);
     }
 
     public function addcourses(){

@@ -79,9 +79,11 @@ Route::group(['middleware'=>['auth']],function(){
             Route::get('/mahasiswa', 'index')->name('index.mahasiswa');
             Route::get('/mahasiswa/kuesioner', 'kuesioner')->name('tampil.kuesioner');
             Route::post('/mahasiswa/kuesioner', 'kuesionerstore')->name('kuesioner.store');
-            Route::get('/mahasiswa/daftarmatakuliah', 'enrollcourse')->name('enroll.course');
+            Route::get('/mahasiswa/rencanastudi', 'enrollcourse')->name('enroll.course');
             Route::delete('/mahasiswa/daftarmatakuliah/{trid}/{namamtk}', 'deletetrcourse')->name('deletetr.course');
             Route::get('/mahasiswa/addmatakuliah/{mkkode}', 'addtrcourse')->name('addtr.course');
+            Route::get('/mahasiswa/jadwalkuliah', 'schedulecourse')->name('schedule.course');
+            Route::get('/mahasiswa/detailjadwal/{trkodemtk}/{periode}', 'detailschedule')->name('detailschedule.course');
         });
     });
 });
