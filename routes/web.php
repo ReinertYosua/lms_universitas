@@ -70,6 +70,8 @@ Route::group(['middleware'=>['auth']],function(){
             Route::post('/dosen/editdetailmaterimatakuliah', 'updatedetailcourse')->name('updatedetail.course');
             Route::get('/dosen/downloadmateri/{filemateri}', 'downloadmatericourse')->name('downloadmateri.course');
             Route::delete('/dosen/hapusmaterimatakuliah/{idmmk}/{idmk}', 'deletematericourse')->name('deletemateri.course');
+            Route::get('/dosen/nilai', 'listcoursescore')->name('listcourse.score');
+            Route::get('/dosen/nilai/{kodemk}', 'inputscore')->name('input.score');
         });
     });
 

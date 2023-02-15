@@ -38,7 +38,7 @@
                                                 <th>Jenis Materi</th>
                                                 <th>Deskripsi</th>
                                                 <th>Referensi</th>
-                                                <th>Link Materi</th>
+                                                <th>File Materi</th>
                                                 <th>Aksi</th>
                                             </tr>
                                         </thead>
@@ -50,7 +50,38 @@
                                                 <td>{{ $mmk->jenis_materi }}</td>
                                                 <td>{{ $mmk->deskripsi }}</td>
                                                 <td>{{ $mmk->referensi }}</td>
-                                                <td><a href="{{ route('downloadmateri.course', $mmk->file_materi) }}">{{ $mmk->file_materi }}</a></td>
+                                                <td>
+                                                    <table>
+                                                        <tr>
+                                                            <td>General</td><td><a href="{{ route('downloadmateri.course', $mmk->file_materi) }}">{{ $mmk->file_materi }}</a></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Active</td><td><a href="{{ route('downloadmateri.course', $mmk->file_active) }}">{{ $mmk->file_active }}</a></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Reflective</td><td><a href="{{ route('downloadmateri.course', $mmk->file_reflective) }}">{{ $mmk->file_reflective }}</a></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Sensing</td><td><a href="{{ route('downloadmateri.course', $mmk->file_sensing) }}">{{ $mmk->file_sensing }}</a></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Intuitive</td><td><a href="{{ route('downloadmateri.course', $mmk->file_intuitive) }}">{{ $mmk->file_intuitive }}</a></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Visual</td><td><a href="{{ route('downloadmateri.course', $mmk->file_visual) }}">{{ $mmk->file_visual }}</a></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Verbal</td><td><a href="{{ route('downloadmateri.course', $mmk->file_verbal) }}">{{ $mmk->file_verbal }}</a></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Sequential</td><td><a href="{{ route('downloadmateri.course', $mmk->file_sequential) }}">{{ $mmk->file_sequential }}</a></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Global</td><td><a href="{{ route('downloadmateri.course', $mmk->file_global) }}">{{ $mmk->file_global }}</a></td>
+                                                        </tr>
+                                                    </table>
+                                                    
+                                                </td>
                                                 <td>
                                                     
                                                     <a href="{{ route('editmateri.course', ['idmkdet'=>encrypt($mmk->id), 'idmk'=>encrypt($mk[0]->id)])}}" class=" btn btn-info" data-toggle="tooltip" data-placement="top" data-original-title="Edit Matakuliah"><i class="fa fa-edit"></i></a>

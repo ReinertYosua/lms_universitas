@@ -59,17 +59,19 @@
                             
                         </ul>
                     </li>
-                    <!-- <li class="mega-menu mega-menu-sm">
+                    <li class="mega-menu mega-menu-sm">
                         <a class="has-arrow" href="javascript:void()" aria-expanded="false">
-                            <i class="icon-globe-alt menu-icon"></i><span class="nav-text">Personalization</span>
+                            <i class="icon-globe-alt menu-icon"></i><span class="nav-text">Penilaian</span>
                         </a>
                         <ul aria-expanded="false">
-                            <li><a href="#">xxx</a></li>
-                            <li><a href="#">xxx</a></li>
-                            <li><a href="#">xxx</a></li>
-                            <li><a href="#">xxx</a></li>
+                            @if(Auth::user()->usertype == 2 )
+                            <li><a href="{{ route('listcourse.score') }}">Input Nilai</a></li>
+                            @endif
+                            @if(Auth::user()->usertype == 3 )
+                            <li><a href="#">Lihat Nilai</a></li>
+                            @endif
                         </ul>
-                    </li> -->
+                    </li>
                     
                     <!-- <li class="nav-label">Apps</li>
                     <li>

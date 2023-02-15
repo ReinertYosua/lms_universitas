@@ -10,10 +10,13 @@ use App\Models\Matakuliah as MatakuliahModel;
 use App\Models\MateriMatakuliah as MateriMatakuliahModel;
 use App\Models\Jurusan as JurusanModel;
 use App\Models\Dosen as DosenModel;
+use App\Models\TransaksiMatakuliah as TransaksiMatakuliahModel;
+use App\Models\Periode as PeriodeModel;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Response;
 use DB;
+use Carbon\Carbon;
 
 
 class DosenController extends Controller
@@ -177,7 +180,15 @@ class DosenController extends Controller
             'jenis_materi' => 'required',
             'deskripsi' => 'required|string|min:3',
             'referensi' => 'required',
-            'filemateri' => 'required'
+            'filemateri' => 'required',
+            'filemateriactive' => 'required',
+            'filematerireflective' => 'required',
+            'filematerisensing' => 'required',
+            'filemateriintuitive' => 'required',
+            'filematerivisual' => 'required',
+            'filemateriverbal' => 'required',
+            'filematerisequential' => 'required',
+            'filemateriglobal' => 'required'
         ];
         $id=
         [
@@ -216,6 +227,38 @@ class DosenController extends Controller
              $filename = $mtk[0]->kode_matakuliah."_session".$request->session.".".$filemateri->getClientOriginalExtension();
              $path = Storage::disk('public')->putFileAs('file/materikuliah', $filemateri,$filename);
 
+             $filemateriactive = $request->file('filemateriactive');
+             $filenameactive = $mtk[0]->kode_matakuliah."_session".$request->session."_active.".$filemateriactive->getClientOriginalExtension();
+             $path = Storage::disk('public')->putFileAs('file/materikuliah', $filemateriactive,$filenameactive);
+
+             $filematerireflective = $request->file('filematerireflective');
+             $filenamereflective = $mtk[0]->kode_matakuliah."_session".$request->session."_reflective.".$filematerireflective->getClientOriginalExtension();
+             $path = Storage::disk('public')->putFileAs('file/materikuliah', $filematerireflective,$filenamereflective);
+
+             $filematerisensing = $request->file('filematerisensing');
+             $filenamesensing = $mtk[0]->kode_matakuliah."_session".$request->session."_sensing.".$filematerisensing->getClientOriginalExtension();
+             $path = Storage::disk('public')->putFileAs('file/materikuliah', $filematerisensing,$filenamesensing);
+
+             $filemateriintuitive = $request->file('filemateriintuitive');
+             $filenameintuitive = $mtk[0]->kode_matakuliah."_session".$request->session."_intuitive.".$filemateriintuitive->getClientOriginalExtension();
+             $path = Storage::disk('public')->putFileAs('file/materikuliah', $filemateriintuitive,$filenameintuitive);
+
+             $filematerivisual = $request->file('filematerivisual');
+             $filenamevisual = $mtk[0]->kode_matakuliah."_session".$request->session."_visual.".$filematerivisual->getClientOriginalExtension();
+             $path = Storage::disk('public')->putFileAs('file/materikuliah', $filematerivisual,$filenamevisual);
+
+             $filemateriverbal = $request->file('filemateriverbal');
+             $filenameverbal = $mtk[0]->kode_matakuliah."_session".$request->session."_verbal.".$filemateriverbal->getClientOriginalExtension();
+             $path = Storage::disk('public')->putFileAs('file/materikuliah', $filemateriverbal,$filenameverbal);
+
+             $filematerisequential = $request->file('filematerisequential');
+             $filenamesequential = $mtk[0]->kode_matakuliah."_session".$request->session."_sequential.".$filematerisequential->getClientOriginalExtension();
+             $path = Storage::disk('public')->putFileAs('file/materikuliah', $filematerisequential,$filenamesequential);
+
+             $filemateriglobal = $request->file('filemateriglobal');
+             $filenameglobal = $mtk[0]->kode_matakuliah."_session".$request->session."_global.".$filemateriglobal->getClientOriginalExtension();
+             $path = Storage::disk('public')->putFileAs('file/materikuliah', $filemateriglobal,$filenameglobal);
+
              //$filemateri->storeAs('public/file/materikuliah', $filename);
  
              $mtk=MateriMatakuliahModel::create([
@@ -226,6 +269,14 @@ class DosenController extends Controller
                  'deskripsi' => $request->deskripsi,
                  'referensi' => $request->referensi,
                  'file_materi' => $filename,
+                 'file_active' => $filenameactive,
+                 'file_reflective' => $filenamereflective,
+                 'file_sensing' => $filenamesensing,
+                 'file_intuitive' => $filenameintuitive,
+                 'file_visual' => $filenamevisual,
+                 'file_verbal' => $filenameverbal,
+                 'file_sequential' => $filenamesequential,
+                 'file_global' => $filenameglobal
                  
              ]);
  
@@ -246,7 +297,15 @@ class DosenController extends Controller
             'jenis_materi' => 'required',
             'deskripsi' => 'required|string|min:3',
             'referensi' => 'required',
-            'filemateri' => 'required'
+            'filemateri' => 'required',
+            'filemateriactive' => 'required',
+            'filematerireflective' => 'required',
+            'filematerisensing' => 'required',
+            'filemateriintuitive' => 'required',
+            'filematerivisual' => 'required',
+            'filemateriverbal' => 'required',
+            'filematerisequential' => 'required',
+            'filemateriglobal' => 'required'
         ];
         $id=
         [
@@ -277,6 +336,38 @@ class DosenController extends Controller
             $filename = $mtk[0]->kode_matakuliah."_session".$request->session.".".$filemateri->getClientOriginalExtension();
             $path = Storage::disk('public')->putFileAs('file/materikuliah', $filemateri,$filename);
             //$filemateri->storeAs('public/file/materikuliah', $filename);
+
+            $filemateriactive = $request->file('filemateriactive');
+            $filenameactive = $mtk[0]->kode_matakuliah."_session".$request->session."_active.".$filemateriactive->getClientOriginalExtension();
+            $path = Storage::disk('public')->putFileAs('file/materikuliah', $filemateriactive,$filenameactive);
+
+            $filematerireflective = $request->file('filematerireflective');
+            $filenamereflective = $mtk[0]->kode_matakuliah."_session".$request->session."_reflective.".$filematerireflective->getClientOriginalExtension();
+            $path = Storage::disk('public')->putFileAs('file/materikuliah', $filematerireflective,$filenamereflective);
+
+            $filematerisensing = $request->file('filematerisensing');
+            $filenamesensing = $mtk[0]->kode_matakuliah."_session".$request->session."_sensing.".$filematerisensing->getClientOriginalExtension();
+            $path = Storage::disk('public')->putFileAs('file/materikuliah', $filematerisensing,$filenamesensing);
+
+            $filemateriintuitive = $request->file('filemateriintuitive');
+            $filenameintuitive = $mtk[0]->kode_matakuliah."_session".$request->session."_intuitive.".$filemateriintuitive->getClientOriginalExtension();
+            $path = Storage::disk('public')->putFileAs('file/materikuliah', $filemateriintuitive,$filenameintuitive);
+
+            $filematerivisual = $request->file('filematerivisual');
+            $filenamevisual = $mtk[0]->kode_matakuliah."_session".$request->session."_visual.".$filematerivisual->getClientOriginalExtension();
+            $path = Storage::disk('public')->putFileAs('file/materikuliah', $filematerivisual,$filenamevisual);
+
+            $filemateriverbal = $request->file('filemateriverbal');
+            $filenameverbal = $mtk[0]->kode_matakuliah."_session".$request->session."_verbal.".$filemateriverbal->getClientOriginalExtension();
+            $path = Storage::disk('public')->putFileAs('file/materikuliah', $filemateriverbal,$filenameverbal);
+
+            $filematerisequential = $request->file('filematerisequential');
+            $filenamesequential = $mtk[0]->kode_matakuliah."_session".$request->session."_sequential.".$filematerisequential->getClientOriginalExtension();
+            $path = Storage::disk('public')->putFileAs('file/materikuliah', $filematerisequential,$filenamesequential);
+
+            $filemateriglobal = $request->file('filemateriglobal');
+            $filenameglobal = $mtk[0]->kode_matakuliah."_session".$request->session."_global.".$filemateriglobal->getClientOriginalExtension();
+            $path = Storage::disk('public')->putFileAs('file/materikuliah', $filemateriglobal,$filenameglobal);
              
             $dmk = MateriMatakuliahModel::find(decrypt($request->id_mmk));
             $dmk->update([
@@ -286,6 +377,14 @@ class DosenController extends Controller
                 'deskripsi' => $request->deskripsi,
                 'referensi' => $request->referensi,
                 'file_materi' => $filename,
+                'file_active' => $filenameactive,
+                'file_reflective' => $filenamereflective,
+                'file_sensing' => $filenamesensing,
+                'file_intuitive' => $filenameintuitive,
+                'file_visual' => $filenamevisual,
+                'file_verbal' => $filenameverbal,
+                'file_sequential' => $filenamesequential,
+                'file_global' => $filenameglobal
             ]);
             return redirect()->route('detail.materi', $request->id_mtk)->with('success',' Materi Session '.$request->session.' berhasil diubah.');
         }
@@ -310,5 +409,42 @@ class DosenController extends Controller
         MateriMatakuliahModel::destroy(decrypt($idmmk));
         return redirect()->route('detail.materi', $idmk)->with('success','Materi '.$namamtk[0]->materi.' berhasil dihapus.');
         
+    }
+
+    public function listcoursescore(){
+        $todayDate = Carbon::now();
+        //dd($todayDate);
+        $getPeriode = PeriodeModel::whereRaw('tanggal_awal <= ? and tanggal_akhir >= ?', [$todayDate, $todayDate])->get();
+
+        //dd($getPeriode[0]->kode_periode);
+
+        $iddosen = DosenModel::where('user_id',Auth::user()->id)->get();
+        $getCourse = TransaksiMatakuliahModel::join('matakuliah','matakuliah.kode_matakuliah','=','transaksimatakuliah.kode_matakuliah')
+                        ->select('transaksimatakuliah.kode_matakuliah','matakuliah.nama_matakuliah','matakuliah.sks')
+                        ->where([
+                                ['matakuliah.id_dosen','=',$iddosen[0]->id],
+                                ['transaksimatakuliah.periode','=',$getPeriode[0]->kode_periode]
+                                ])
+                        ->groupBy('transaksimatakuliah.kode_matakuliah')
+                        ->get();
+                        
+        return view('layouts.lecturer.listcoursescore')->with(['matkulscore'=>$getCourse,'periode'=>$getPeriode[0]->kode_periode]);
+    }
+
+    public function inputscore($kodemk){
+        $todayDate = Carbon::now();
+        //dd($todayDate);
+        $getPeriode = PeriodeModel::whereRaw('tanggal_awal <= ? and tanggal_akhir >= ?', [$todayDate, $todayDate])->get();
+
+        $getStudents = TransaksiMatakuliahModel::join('matakuliah','matakuliah.kode_matakuliah','=','transaksimatakuliah.kode_matakuliah')
+                        ->join('mahasiswa','mahasiswa.nim','=','transaksimatakuliah.nim')
+                        ->select('transaksimatakuliah.kode_matakuliah','matakuliah.nama_matakuliah','matakuliah.sks','transaksimatakuliah.nim','mahasiswa.nim','mahasiswa.namadepan','mahasiswa.namabelakang')
+                        ->where([
+                            ['transaksimatakuliah.kode_matakuliah','=',decrypt($kodemk)],
+                            ['transaksimatakuliah.periode','=',$getPeriode[0]->kode_periode]
+                            ])
+                        ->get();
+        
+        return view('layouts.lecturer.liststudentscore')->with(['mhsscore'=>$getStudents,'periode'=>$getPeriode[0]->kode_periode]);
     }
 }
