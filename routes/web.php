@@ -72,6 +72,7 @@ Route::group(['middleware'=>['auth']],function(){
             Route::delete('/dosen/hapusmaterimatakuliah/{idmmk}/{idmk}', 'deletematericourse')->name('deletemateri.course');
             Route::get('/dosen/nilai', 'listcoursescore')->name('listcourse.score');
             Route::get('/dosen/nilai/{kodemk}', 'inputscore')->name('input.score');
+            Route::post('/dosen/nilai', 'submitscore')->name('submit.score');
         });
     });
 

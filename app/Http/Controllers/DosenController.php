@@ -12,6 +12,7 @@ use App\Models\Jurusan as JurusanModel;
 use App\Models\Dosen as DosenModel;
 use App\Models\TransaksiMatakuliah as TransaksiMatakuliahModel;
 use App\Models\Periode as PeriodeModel;
+use App\Models\Scoring as ScoringModel;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Response;
@@ -180,6 +181,7 @@ class DosenController extends Controller
             'jenis_materi' => 'required',
             'deskripsi' => 'required|string|min:3',
             'referensi' => 'required',
+            'kesulitan' => 'required',
             'filemateri' => 'required',
             'filemateriactive' => 'required',
             'filematerireflective' => 'required',
@@ -268,6 +270,7 @@ class DosenController extends Controller
                  'jenis_materi' => $request->jenis_materi,
                  'deskripsi' => $request->deskripsi,
                  'referensi' => $request->referensi,
+                 'tingkat_kesulitan' => $request->kesulitan, 
                  'file_materi' => $filename,
                  'file_active' => $filenameactive,
                  'file_reflective' => $filenamereflective,
@@ -297,6 +300,7 @@ class DosenController extends Controller
             'jenis_materi' => 'required',
             'deskripsi' => 'required|string|min:3',
             'referensi' => 'required',
+            'kesulitan' => 'required',
             'filemateri' => 'required',
             'filemateriactive' => 'required',
             'filematerireflective' => 'required',
@@ -376,6 +380,7 @@ class DosenController extends Controller
                 'jenis_materi' => $request->jenis_materi,
                 'deskripsi' => $request->deskripsi,
                 'referensi' => $request->referensi,
+                'tingkat_kesulitan' => $request->kesulitan,
                 'file_materi' => $filename,
                 'file_active' => $filenameactive,
                 'file_reflective' => $filenamereflective,
@@ -444,7 +449,93 @@ class DosenController extends Controller
                             ['transaksimatakuliah.periode','=',$getPeriode[0]->kode_periode]
                             ])
                         ->get();
+
+        $getSession= MateriMatakuliahModel::join('matakuliah','matakuliah.id','=','materi_matakuliah.id_matakuliah')
+                    ->select('materi_matakuliah.session')
+                    ->where('matakuliah.kode_matakuliah','=',decrypt($kodemk))
+                    ->get();
+        //dd($getSession);
         
-        return view('layouts.lecturer.liststudentscore')->with(['mhsscore'=>$getStudents,'periode'=>$getPeriode[0]->kode_periode]);
+        return view('layouts.lecturer.liststudentscore')->with(['mhsscore'=>$getStudents,'periode'=>$getPeriode[0]->kode_periode,'session'=>$getSession]);
+    }
+
+    public function submitscore(Request $request){
+        //dd($request->chkScore);
+        $periode = decrypt($request->periode);
+        $kode_mk = decrypt($request->kode_mk);
+        $kategori = $request->kategori;
+
+        $rules =[
+            'kategori' => 'required',
+            'chkScore' => 'required',
+        ];
+        $id=
+        [
+            'required' => ':attribute wajib diisi.',
+            'size' => ':attribute harus berukuran :size karakter.',
+            'max' => ':attribute maksimal berisi :max karakter.',
+            'min' => ':attribute minimal berisi :min karakter.',
+            'email' => ':attribute harus diisi dengan alamat email yang valid.',
+        ];
+
+        $validator = Validator::make($request->all(),$rules,$id);
+        if ($validator->fails()) {
+			return redirect()->back()
+			->withInput()
+			->with('danger','Belum memilih mahasiswa yang ingin diinput nilainya');
+		}else{
+            
+            
+            foreach($request->chkScore as $key1 => $value1){
+                $data = $request->except('_token','periode','kategori','kode_mk','active','chkScore');
+                
+                foreach ($data as $key => $value) {
+                    $nim = explode("_",$key);
+                    //dd($nim[1]."-".$value);
+                    //echo $nim[1]."-".$value1."<br>";
+                    if($value>=70 && $value<=100)
+                    {
+                        $mastery = 'high';
+                    }else if($value>=60 && $value<70){
+                        $mastery = 'medium';
+                    }else if($value < 60){
+                        $mastery = 'low';
+                    }
+
+                    //cek nim yg dipilih
+                    if($value1==$nim[1]){
+                        //cek jika score exists
+                        $scoringexists=ScoringModel::where('periode','=',$periode)
+                                        ->where('kode_matakuliah','=',$kode_mk)
+                                        ->where('nim','=',$nim[1])
+                                        ->where('kategori_ujian','=',$kategori)
+                                        ->exists();
+                        if($scoringexists){
+                            //echo $nim[1]."-".$periode."-".$kode_mk."-".$kategori."-".$value."Sudah<br>";
+                            $dmk = ScoringModel::where('periode', $periode)
+                                ->where('kode_matakuliah', $kode_mk)
+                                ->where('nim',$nim[1])
+                                ->where('kategori_ujian','=',$kategori)
+                                ->update(['final_score' => $value,'topic_mastery' => $mastery]);
+                        }else{
+                            //echo $nim[1]."-".$periode."-".$kode_mk."-".$kategori."-".$value."Sudah<br>";
+                            $dmk=ScoringModel::create([
+                                'periode' => $periode,
+                                'nim' => $nim[1],
+                                'kode_matakuliah' => $kode_mk,
+                                'kategori_ujian' => $kategori,
+                                'final_score' => $value,
+                                'topic_mastery' => $mastery
+                            ]);
+                        }
+                    }
+                }
+                
+            }
+                
+            return redirect()->route('listcourse.score')->with('success','Berhasil submit nilai.');
+        }
+        
+        
     }
 }

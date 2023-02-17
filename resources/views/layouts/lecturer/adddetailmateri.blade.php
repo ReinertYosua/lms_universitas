@@ -91,6 +91,21 @@
                                     </div>
                                 </div>
                                 <div class="form-group row">
+                                    <label class="col-lg-4 col-form-label" for="kesulitan">Tingkat Kesulitan <span class="text-danger">*</span>
+                                    </label>
+                                    <div class="col-lg-6">
+                                        <select class="form-control" id="kesulitan" name="kesulitan">
+                                            <option value="">Silahkan Pilih</option>
+                                            <option value="hign">Sulit</option>
+                                            <option value="medium">Sedang</option>
+                                            <option value="low">Mudah</option>
+                                        </select>
+                                    @error('kesulitan')
+                                            <div class="text-danger">{{ $message }}</div>
+                                    @enderror
+                                    </div>
+                                </div>
+                                <div class="form-group row">
                                     <label class="col-lg-4 col-form-label" for="filemateri">File Materi <span class="text-danger">*</span>
                                     </label>
                                     <div class="col-lg-6">

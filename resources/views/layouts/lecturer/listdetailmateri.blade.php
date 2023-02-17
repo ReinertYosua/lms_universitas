@@ -38,6 +38,7 @@
                                                 <th>Jenis Materi</th>
                                                 <th>Deskripsi</th>
                                                 <th>Referensi</th>
+                                                <th>Tingkat Kesulitan</th>
                                                 <th>File Materi</th>
                                                 <th>Aksi</th>
                                             </tr>
@@ -50,6 +51,7 @@
                                                 <td>{{ $mmk->jenis_materi }}</td>
                                                 <td>{{ $mmk->deskripsi }}</td>
                                                 <td>{{ $mmk->referensi }}</td>
+                                                <td>{{ $mmk->tingkat_kesulitan }}</td>
                                                 <td>
                                                     <table>
                                                         <tr>
@@ -104,6 +106,7 @@
                                                 <th>Jenis Materi</th>
                                                 <th>Deskripsi</th>
                                                 <th>Referensi</th>
+                                                <th>Tingkat Kesulitan</th>
                                                 <th>Link Materi</th>
                                                 <th>Aksi</th>
                                             </tr>

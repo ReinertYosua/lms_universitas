@@ -92,6 +92,22 @@
                                     </div>
                                 </div>
                                 <div class="form-group row">
+                                    <label class="col-lg-4 col-form-label" for="kesulitan">Tingkat Kesulitan <span class="text-danger">*</span>
+                                    </label>
+                                    <div class="col-lg-6">
+                                        <select class="form-control" id="kesulitan" name="kesulitan">
+                                            <option value="">Silahkan Pilih</option>
+                                            <option value="hign"{{(old('kesulitan') ?? $mmk[0]->tingkat_kesulitan)=='high'?'selected': ''}}>Sulit</option>
+                                            <option value="medium" {{(old('kesulitan') ?? $mmk[0]->tingkat_kesulitan)=='medium'?'selected': ''}}>Sedang</option>
+                                            <option value="low" {{(old('kesulitan') ?? $mmk[0]->tingkat_kesulitan)=='low'?'selected': ''}}>Mudah</option>
+                                            
+                                        </select>
+                                    @error('kesulitan')
+                                            <div class="text-danger">{{ $message }}</div>
+                                    @enderror
+                                    </div>
+                                </div>
+                                <div class="form-group row">
                                     <label class="col-lg-4 col-form-label" for="filemateri">File Materi <span class="text-danger">*</span>
                                     </label>
                                     <div class="col-lg-6">
