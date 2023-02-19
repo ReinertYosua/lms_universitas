@@ -7,7 +7,7 @@
         <div class="col p-md-0">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
-                <li class="breadcrumb-item"><a href="{{ route('schedule.course') }}">Matakuliah</a></li>
+                <li class="breadcrumb-item"><a href="{{ route('schedulelec.course') }}">Matakuliah</a></li>
                 <li class="breadcrumb-item active"><a href="javascript:void(0)">Detail Jadwal Matakuliah</a></li>
             </ol>
         </div>

@@ -444,13 +444,15 @@ class MahasiswaController extends Controller
     }
 
     public function detailschedule($trkodemtk, $periode){
-        //dd(decrypt($trkodemtk));
+        $matakuliah = MatakuliahModel::where('matakuliah.kode_matakuliah','=',decrypt($trkodemtk))
+                        ->get();
+       
         $getmateri = MateriMatakuliahModel::join('matakuliah','matakuliah.id','=','materi_matakuliah.id_matakuliah')
                     ->where([["matakuliah.kode_matakuliah", "=", decrypt($trkodemtk)]])
                     ->select('materi_matakuliah.id','materi_matakuliah.session','materi_matakuliah.materi','materi_matakuliah.jenis_materi','materi_matakuliah.deskripsi','materi_matakuliah.referensi','materi_matakuliah.file_materi')
                     ->get();
         //dd($getmateri);
-        return view('layouts.student.detailcourse')->with(['detailjadwal'=>$getmateri]);
+        return view('layouts.student.detailcourse')->with(['detailjadwal'=>$getmateri,'matkul'=>$matakuliah]);
         
     }
 

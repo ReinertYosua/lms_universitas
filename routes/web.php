@@ -58,6 +58,8 @@ Route::group(['middleware'=>['auth']],function(){
         Route::controller(DosenController::class)->group(function () {
             Route::get('/dosen', 'index')->name('index.dosen');
             Route::get('/dosen/matakuliah', 'listcourses')->name('list.courses');
+            Route::get('/dosen/jadwalkuliah', 'schedulelecturer')->name('schedulelec.course');
+            Route::get('/dosen/detailjadwal/{trkodemtk}/{periode}', 'detailschedulelecturer')->name('detailschedulelecturer.course');
             Route::get('/dosen/tambahmatakuliah', 'addcourses')->name('add.courses');
             Route::post('/dosen/tambahmatakuliah', 'createcourse')->name('create.course');
             Route::delete('/dosen/matakuliah/{id}', 'deletecourse')->name('delete.course');
@@ -73,6 +75,8 @@ Route::group(['middleware'=>['auth']],function(){
             Route::get('/dosen/nilai', 'listcoursescore')->name('listcourse.score');
             Route::get('/dosen/nilai/{kodemk}', 'inputscore')->name('input.score');
             Route::post('/dosen/nilai', 'submitscore')->name('submit.score');
+            Route::get('/dosen/nilai/mahasiswa/{kodemk}/{periode}', 'detailscore')->name('detail.score');
+            
         });
     });
 

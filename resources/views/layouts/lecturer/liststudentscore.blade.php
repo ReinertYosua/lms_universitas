@@ -7,7 +7,7 @@
                 <div class="col p-md-0">
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
-                        <li class="breadcrumb-item active"><a href="{{ route('list.courses') }}">Matakuliah</a></li>
+                        <li class="breadcrumb-item active"><a href="{{ route('listcourse.score') }}">List Matakuliah Penilaian</a></li>
                     </ol>
                 </div>
             </div>
@@ -27,7 +27,7 @@
                                     <form class="form-validate" action="{{ route('submit.score') }}" method="post">
                                         @csrf
                                         <div class="form-group row">
-                                            <label class="col-lg-4 col-form-label" for="kategori">Kategori Nilai untuk semua mahasiswa <span class="text-danger">*</span>
+                                            <label class="col-lg-4 col-form-label" for="kategori">Kategori Nilai untuk mahasiswa <span class="text-danger">*</span>
                                             </label>
                                             <div class="col-lg-6">
                                                 <input type="hidden" name="periode" value="{{ encrypt( $periode ) }}">
@@ -49,14 +49,15 @@
                                                 <th>Mahasiswa</th>
                                                 <th>Score</th>
                                                 <th>
-                                                    <div class="input-group-text">
-                                                        <input type="checkbox" name="active" id="active" onclick="checkAll()">&nbsp;&nbsp;Pilih semua 
+                                                    <div class="input-group-text text-center">
+                                                        <input class="text-center" type="checkbox" name="active" id="active" onclick="checkAll()">&nbsp;&nbsp;Pilih Semua
+                                                    </div> 
                                                     </th>
                                             </tr>
                                             </thead>
                                             @foreach($mhsscore as $mhssc)
                                             <tr>
-                                                <td><label class="col-form-label" for="{{ $mhssc->nim }}">{{ $mhssc->nim." - ".$mhssc->namadepan." ".$mhssc->namabelakang }}</td>
+                                                <td><img src="{{asset('storage')}}/foto/mahasiswa/{{ $mhssc->fotomhs }}" class=" rounded-circle mr-3" alt=""><label class="col-form-label" for="{{ $mhssc->nim }}">{{ $mhssc->nim." - ".$mhssc->namadepan." ".$mhssc->namabelakang }}</td>
                                                 <td><input type="number" value="0" class="form-control" id="fscore_{{ $mhssc->nim }}" name="fscore_{{ $mhssc->nim }}" placeholder="Masukkan Nilai" disabled></td>
                                                 
                                                 <td>

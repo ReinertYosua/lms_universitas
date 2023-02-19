@@ -443,7 +443,7 @@ class DosenController extends Controller
 
         $getStudents = TransaksiMatakuliahModel::join('matakuliah','matakuliah.kode_matakuliah','=','transaksimatakuliah.kode_matakuliah')
                         ->join('mahasiswa','mahasiswa.nim','=','transaksimatakuliah.nim')
-                        ->select('transaksimatakuliah.kode_matakuliah','matakuliah.nama_matakuliah','matakuliah.sks','transaksimatakuliah.nim','mahasiswa.nim','mahasiswa.namadepan','mahasiswa.namabelakang')
+                        ->select('transaksimatakuliah.kode_matakuliah','matakuliah.nama_matakuliah','matakuliah.sks','transaksimatakuliah.nim','mahasiswa.nim','mahasiswa.namadepan','mahasiswa.namabelakang','mahasiswa.fotomhs')
                         ->where([
                             ['transaksimatakuliah.kode_matakuliah','=',decrypt($kodemk)],
                             ['transaksimatakuliah.periode','=',$getPeriode[0]->kode_periode]
@@ -536,6 +536,90 @@ class DosenController extends Controller
             return redirect()->route('listcourse.score')->with('success','Berhasil submit nilai.');
         }
         
+    }
+
+    public function detailscore($kodemk, $periode){
+        $detscore = ScoringModel::select('scoring.nim', 'mahasiswa.namadepan', 'mahasiswa.namabelakang', 'scoring.kode_matakuliah', 'matakuliah.nama_matakuliah', 'scoring.kategori_ujian', 'scoring.final_score', 'scoring.topic_mastery')
+                    ->join('mahasiswa', 'mahasiswa.nim', '=', 'scoring.nim')
+                    ->join('matakuliah', 'matakuliah.kode_matakuliah', '=', 'scoring.kode_matakuliah')
+                    ->where('scoring.kode_matakuliah', '=', decrypt($kodemk))
+                    ->where('scoring.periode', '=', $periode)
+                    ->where('scoring.kategori_ujian', '=', 'UTS')
+                    ->orWhere('scoring.kategori_ujian', '=', 'UAS')
+                    ->orderBy('mahasiswa.namadepan')
+                    ->orderBy('scoring.kategori_ujian')
+                    ->get();
+        //dd($detscore);
+
+        //dump(decrypt($kodemk));
+        $html = "";
+        if(!empty($detscore)){
+            //dd($detscore);
+          foreach($detscore as $dts){
+
+           $html .= "<tr>
+                <td width='30%'>".$dts->nim."</td>
+                <td width='40%'>".$dts->namadepan.$dts->namabelakang."</td>
+                <td width='20%'>".$dts->kategori_ujian."</td>
+                <td width='10%'>".$dts->final_score."</td>
+             </tr>
+             ";
+          }
+        }
+
+        //echo $html;
+
+        $response['html'] = $html;
+  
+        return response()->json($response);
+
+    }
+
+    public function schedulelecturer(){
+        // get nim from user login
+        $user=Auth::user();
+        $getiddosen = UserModel::join('dosen', 'users.id', '=', 'dosen.user_id')
+                    ->where([
+                        ["dosen.user_id", "=", $user->id],
+                    ])
+                    ->get("dosen.id");
+
+        //get periode by tanggal berjalan
+        $todayDate = Carbon::now();
+        $getPeriode = PeriodeModel::whereRaw('tanggal_awal <= ? and tanggal_akhir >= ?', [$todayDate, $todayDate])->get();
+        $periodtr ="";
+        //dd($getPeriode[0]->kode_periode);
+        if(!$getPeriode->isEmpty())
+        {
+            $resultschedule = TransaksiMatakuliahModel::select(
+                        'transaksimatakuliah.id',
+                        'transaksimatakuliah.periode',
+                        'transaksimatakuliah.kode_matakuliah',
+                        'matakuliah.nama_matakuliah',
+                        'matakuliah.sks',
+                        'matakuliah.deskripsi',
+                        DB::raw('COUNT(transaksimatakuliah.nim) as total_mahasiswa')
+                    )
+                    ->join('matakuliah', 'matakuliah.kode_matakuliah', '=', 'transaksimatakuliah.kode_matakuliah')
+                    ->join('dosen', 'dosen.id', '=', 'matakuliah.id_dosen')
+                    ->where('periode', $getPeriode[0]->kode_periode)
+                    ->where('matakuliah.id_dosen', $getiddosen[0]->id)
+                    ->groupBy('transaksimatakuliah.kode_matakuliah')
+                    ->get();
+        }
         
+                    $getperiod = PeriodeModel::all();
+                    return view('layouts.lecturer.schedulelecturer')->with(['listperiode'=>$getperiod,'transaksi'=>$resultschedule,'periode'=>$getPeriode[0]->kode_periode]);
+    }
+
+    public function detailschedulelecturer($trkodemtk, $periode){
+        $matakuliah = MatakuliahModel::where('matakuliah.kode_matakuliah','=',decrypt($trkodemtk))
+                        ->get();
+        $getmateri = MateriMatakuliahModel::join('matakuliah','matakuliah.id','=','materi_matakuliah.id_matakuliah')
+                    ->where([["matakuliah.kode_matakuliah", "=", decrypt($trkodemtk)]])
+                    ->select('matakuliah.kode_matakuliah','matakuliah.nama_matakuliah', 'materi_matakuliah.id','materi_matakuliah.session','materi_matakuliah.materi','materi_matakuliah.jenis_materi','materi_matakuliah.deskripsi','materi_matakuliah.referensi','materi_matakuliah.file_materi')
+                    ->get();
+        //dd($getmateri);
+        return view('layouts.lecturer.detailcourselecturer')->with(['detailjadwal'=>$getmateri,'matkul'=>$matakuliah]);
     }
 }

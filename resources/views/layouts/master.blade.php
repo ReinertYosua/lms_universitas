@@ -23,7 +23,7 @@
     <link href="{{asset('css')}}/scrollertab.css" rel="stylesheet">
     <!-- <link href="{{asset('plugins')}}/jquery-steps/css/jquery.steps.css" rel="stylesheet"> -->
     <link href="{{asset('plugins')}}/tables/css/datatable/dataTables.bootstrap4.min.css" rel="stylesheet">
-
+    <script src="{{asset('plugins/jquery/jquery-3.6.3.min.js')}}"></script>
 </head>
 
 <body>

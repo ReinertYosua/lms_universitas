@@ -49,6 +49,7 @@
                             @auth
                             @if(Auth::user()->usertype == 2 )
                             <li><a href="{{ route('list.courses') }}">Buat Matakuliah</a></li>
+                            <li><a href="{{ route('schedulelec.course') }}">Matakuliah Saya</a></li>
                             @endif
 
                             @if(Auth::user()->usertype == 3 )
@@ -65,7 +66,7 @@
                         </a>
                         <ul aria-expanded="false">
                             @if(Auth::user()->usertype == 2 )
-                            <li><a href="{{ route('listcourse.score') }}">Input Nilai</a></li>
+                            <li><a href="{{ route('listcourse.score') }}">Nilai</a></li>
                             @endif
                             @if(Auth::user()->usertype == 3 )
                             <li><a href="#">Lihat Nilai</a></li>
