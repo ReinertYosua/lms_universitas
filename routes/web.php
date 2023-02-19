@@ -76,6 +76,7 @@ Route::group(['middleware'=>['auth']],function(){
             Route::get('/dosen/nilai/{kodemk}', 'inputscore')->name('input.score');
             Route::post('/dosen/nilai', 'submitscore')->name('submit.score');
             Route::get('/dosen/nilai/mahasiswa/{kodemk}/{periode}', 'detailscore')->name('detail.score');
+            Route::get('/dosen/nilai/mahasiswa/sesi/{kodemk}/{periode}/{session}', 'detaillecturerscore')->name('detaillecturer.score');
             
         });
     });

@@ -8,6 +8,7 @@
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
                         <li class="breadcrumb-item active"><a href="{{ route('listcourse.score') }}">List Matakuliah Penilaian</a></li>
+                        <li class="breadcrumb-item active"><a href="#">Input Nilai</a></li>
                     </ol>
                 </div>
             </div>

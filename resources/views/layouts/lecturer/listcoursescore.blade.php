@@ -8,6 +8,7 @@
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
                         <li class="breadcrumb-item active"><a href="{{ route('listcourse.score') }}">List Matakuliah Input Nilai</a></li>
+                        
                     </ol>
                 </div>
             </div>
@@ -19,12 +20,8 @@
                         <div class="card">
                             <div class="card-body">
                                 <div class="row">
-                                    <div class="col-6">
+                                    <div class="col-12">
                                         <h4 class="card-title">List Penilaian Matakuliah Periode {{ $periode }} </h4>
-                                    </div>
-                                    <div class="col-6 text-right">
-                                        <a href="{{ route('add.courses') }}" class="btn mb-1 btn-primary">Tambah Matakuliah <span class="btn-icon-right"><i class="fa fa-plus"></i></span></a>
-                                        
                                     </div>
                                 </div>
                                 <!--  -->
@@ -79,8 +76,8 @@
                                                         <tr>
                                                             <th>NIM</th>
                                                             <th>Nama Mahasiswa</th>
-                                                            <th>Kategori</th>
-                                                            <th>Nilai</th>
+                                                            <th>UTS</th>
+                                                            <th>UAS</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody></tbody>

@@ -539,16 +539,26 @@ class DosenController extends Controller
     }
 
     public function detailscore($kodemk, $periode){
-        $detscore = ScoringModel::select('scoring.nim', 'mahasiswa.namadepan', 'mahasiswa.namabelakang', 'scoring.kode_matakuliah', 'matakuliah.nama_matakuliah', 'scoring.kategori_ujian', 'scoring.final_score', 'scoring.topic_mastery')
+        // $detscore = ScoringModel::select('scoring.nim', 'mahasiswa.namadepan', 'mahasiswa.namabelakang', 'scoring.kode_matakuliah', 'matakuliah.nama_matakuliah', 'scoring.kategori_ujian', 'scoring.final_score', 'scoring.topic_mastery')
+        //             ->join('mahasiswa', 'mahasiswa.nim', '=', 'scoring.nim')
+        //             ->join('matakuliah', 'matakuliah.kode_matakuliah', '=', 'scoring.kode_matakuliah')
+        //             ->where('scoring.kode_matakuliah', '=', decrypt($kodemk))
+        //             ->where('scoring.periode', '=', $periode)
+        //             ->where('scoring.kategori_ujian', '=', 'UTS')
+        //             ->orWhere('scoring.kategori_ujian', '=', 'UAS')
+        //             ->orderBy('mahasiswa.namadepan')
+        //             ->orderBy('scoring.kategori_ujian')
+        //             ->get();
+        $detscore = $result = DB::table('scoring')
+                    ->select('scoring.periode', 'scoring.nim', 'scoring.kode_matakuliah', 'mahasiswa.namadepan', 'mahasiswa.namabelakang', 
+                            DB::raw('MAX(CASE WHEN scoring.kategori_ujian = \'UTS\' THEN scoring.final_score END) AS UTS'), 
+                            DB::raw('MAX(CASE WHEN scoring.kategori_ujian = \'UAS\' THEN scoring.final_score END) AS UAS'))
                     ->join('mahasiswa', 'mahasiswa.nim', '=', 'scoring.nim')
-                    ->join('matakuliah', 'matakuliah.kode_matakuliah', '=', 'scoring.kode_matakuliah')
                     ->where('scoring.kode_matakuliah', '=', decrypt($kodemk))
                     ->where('scoring.periode', '=', $periode)
-                    ->where('scoring.kategori_ujian', '=', 'UTS')
-                    ->orWhere('scoring.kategori_ujian', '=', 'UAS')
-                    ->orderBy('mahasiswa.namadepan')
-                    ->orderBy('scoring.kategori_ujian')
+                    ->groupBy('scoring.periode', 'scoring.nim', 'scoring.kode_matakuliah')
                     ->get();
+
         //dd($detscore);
 
         //dump(decrypt($kodemk));
@@ -560,8 +570,8 @@ class DosenController extends Controller
            $html .= "<tr>
                 <td width='30%'>".$dts->nim."</td>
                 <td width='40%'>".$dts->namadepan.$dts->namabelakang."</td>
-                <td width='20%'>".$dts->kategori_ujian."</td>
-                <td width='10%'>".$dts->final_score."</td>
+                <td width='20%'>".$dts->UTS."</td>
+                <td width='10%'>".$dts->UAS."</td>
              </tr>
              ";
           }
@@ -617,9 +627,101 @@ class DosenController extends Controller
                         ->get();
         $getmateri = MateriMatakuliahModel::join('matakuliah','matakuliah.id','=','materi_matakuliah.id_matakuliah')
                     ->where([["matakuliah.kode_matakuliah", "=", decrypt($trkodemtk)]])
-                    ->select('matakuliah.kode_matakuliah','matakuliah.nama_matakuliah', 'materi_matakuliah.id','materi_matakuliah.session','materi_matakuliah.materi','materi_matakuliah.jenis_materi','materi_matakuliah.deskripsi','materi_matakuliah.referensi','materi_matakuliah.file_materi')
+                    ->select('matakuliah.kode_matakuliah','matakuliah.nama_matakuliah', 'materi_matakuliah.id','materi_matakuliah.session','materi_matakuliah.tingkat_kesulitan','materi_matakuliah.materi','materi_matakuliah.jenis_materi','materi_matakuliah.deskripsi','materi_matakuliah.referensi','materi_matakuliah.file_materi','materi_matakuliah.file_active','materi_matakuliah.file_reflective','materi_matakuliah.file_sensing','materi_matakuliah.file_intuitive','materi_matakuliah.file_visual','materi_matakuliah.file_verbal','materi_matakuliah.file_sequential','materi_matakuliah.file_global')
                     ->get();
-        //dd($getmateri);
-        return view('layouts.lecturer.detailcourselecturer')->with(['detailjadwal'=>$getmateri,'matkul'=>$matakuliah]);
+
+
+        // $getstudentscore = DB::table('scoring')
+        //                     ->select('scoring.periode', 'scoring.kode_matakuliah', 'scoring.nim','mahasiswa.fotomhs', 'mahasiswa.namadepan', 'mahasiswa.namabelakang', 
+        //                             'scoring.kategori_ujian', 'scoring.final_score', 'scoring.topic_mastery')
+        //                     ->join('mahasiswa', 'mahasiswa.nim', '=', 'scoring.nim')
+        //                     ->whereNotIn('kategori_ujian', ['UTS', 'UAS'])
+        //                     ->where('scoring.periode', '=', 'GENAP2022')
+        //                     ->where('scoring.kode_matakuliah', '=', 'COMP0003')
+        //                     ->get();
+        //dd($getstudentscore);
+        return view('layouts.lecturer.detailcourselecturer')->with(['detailjadwal'=>$getmateri,'matkul'=>$matakuliah,'periode'=>$periode]);
+    }
+
+    public function getAffection($mastery, $level){
+        
+        $affection = '';
+
+        if ($mastery == 'low') {
+            if ($level == 'low') {
+                $affection = 'Apathy';
+            } elseif ($level == 'medium') {
+                $affection = 'Worry';
+            } elseif ($level == 'high') {
+                $affection = 'Anxiety';
+            }
+        } elseif ($mastery == 'medium') {
+            if ($level == 'low') {
+                $affection = 'Boredom';
+            } elseif ($level == 'medium') {
+                if ($affection == 'Netral') {
+                    $affection = 'Netral';
+                } elseif ($affection == 'Arousal') {
+                    $affection = 'Arousal';
+                }
+            } elseif ($level == 'high') {
+                $affection = 'Flow';
+            }
+        } elseif ($mastery == 'high') {
+            if ($level == 'low') {
+                $affection = 'Relaxation';
+            } elseif ($level == 'medium') {
+                $affection = 'Control';
+            } elseif ($level == 'high') {
+                $affection = 'Flow';
+            }
+        }
+
+        return $affection;
+
+    }
+
+    public function detaillecturerscore($kodemk, $periode, $session){
+        //dd(decrypt($kodemk)."-".decrypt($periode)."-".$session);
+        $getdif = MateriMatakuliahModel::select('tingkat_kesulitan')
+                    ->where('session','=',$session)
+                    ->get();
+        //dd($getdif[0]->tingkat_kesulitan);
+        $detscore = DB::table('scoring')
+                    ->join('mahasiswa', 'mahasiswa.nim', '=', 'scoring.nim')
+                    ->select('scoring.periode', 'scoring.kode_matakuliah', 'scoring.nim', 'mahasiswa.fotomhs', 'mahasiswa.namadepan', 'mahasiswa.namabelakang', 'scoring.kategori_ujian', 'scoring.final_score', 'scoring.topic_mastery')
+                    ->whereNotIn('scoring.kategori_ujian', ['UTS', 'UAS'])
+                    ->where('scoring.kategori_ujian', $session)
+                    ->where('scoring.periode', decrypt($periode))
+                    ->where('scoring.kode_matakuliah', decrypt($kodemk))
+                    ->get();
+
+        //dd($detscore);
+
+        //dump(decrypt($kodemk));
+        $html = "";
+        if(!empty($detscore)){
+            //dd($detscore);
+            $no=1;
+          foreach($detscore as $dts){
+                
+           $html .= "<tr>
+                <td width='10%'>".$no."</td>
+                <td width='15%'>".$dts->nim."</td>
+                <td width='30%'>".$dts->namadepan." ".$dts->namabelakang."</td>
+                <td width='15%'>".$dts->final_score."</td>
+                <td width='20%'>".$dts->topic_mastery."</td>
+                <td width='10%'>".$this->getAffection($dts->topic_mastery,$getdif[0]->tingkat_kesulitan)."</td>
+             </tr>
+             ";
+             $no++;
+          }
+        }
+
+        //echo $html;
+
+        $response['html'] = $html;
+  
+        return response()->json($response);
     }
 }
