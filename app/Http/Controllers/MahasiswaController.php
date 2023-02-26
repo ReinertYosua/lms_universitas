@@ -13,7 +13,10 @@ use App\Models\Periode as PeriodeModel;
 use App\Models\Matakuliah as MatakuliahModel;
 use App\Models\TransaksiMatakuliah as TransaksiMatakuliahModel;
 use App\Models\MateriMatakuliah as MateriMatakuliahModel;
+use App\Models\Scoring as ScoringModel;
 use Carbon\Carbon;
+use DB;
+use Illuminate\Support\Facades\Storage;
 
 class MahasiswaController extends Controller
 {
@@ -444,16 +447,176 @@ class MahasiswaController extends Controller
     }
 
     public function detailschedule($trkodemtk, $periode){
+        // get nim from user login
+        $user=Auth::user();
+        $getnim = UserModel::join('mahasiswa', 'users.id', '=', 'mahasiswa.user_id')
+                    ->where([
+                        ["mahasiswa.user_id", "=", $user->id],
+                    ])
+                    ->get("mahasiswa.nim");
+
         $matakuliah = MatakuliahModel::where('matakuliah.kode_matakuliah','=',decrypt($trkodemtk))
                         ->get();
        
         $getmateri = MateriMatakuliahModel::join('matakuliah','matakuliah.id','=','materi_matakuliah.id_matakuliah')
                     ->where([["matakuliah.kode_matakuliah", "=", decrypt($trkodemtk)]])
-                    ->select('materi_matakuliah.id','materi_matakuliah.session','materi_matakuliah.materi','materi_matakuliah.jenis_materi','materi_matakuliah.deskripsi','materi_matakuliah.referensi','materi_matakuliah.file_materi')
+                    ->select('materi_matakuliah.id','materi_matakuliah.session','materi_matakuliah.materi','materi_matakuliah.jenis_materi','materi_matakuliah.deskripsi','materi_matakuliah.referensi','materi_matakuliah.tingkat_kesulitan','materi_matakuliah.file_materi','materi_matakuliah.file_active','materi_matakuliah.file_reflective','materi_matakuliah.file_sensing','materi_matakuliah.file_intuitive','materi_matakuliah.file_visual','materi_matakuliah.file_verbal','materi_matakuliah.file_sequential','materi_matakuliah.file_global')
                     ->get();
-        //dd($getmateri);
-        return view('layouts.student.detailcourse')->with(['detailjadwal'=>$getmateri,'matkul'=>$matakuliah]);
+
+        $getgayabelajar = ScoreModel::where('nim','=',$getnim[0]->nim)
+                            ->select('dominan')
+                            ->get();
+
+        $getlastscoresession = ScoringModel::join('mahasiswa', 'mahasiswa.nim', '=', 'scoring.nim')
+                                ->selectRaw('MAX(scoring.kategori_ujian) as last_session')
+                                ->where('scoring.periode', '=',  decrypt($periode))
+                                ->where('scoring.kode_matakuliah', '=', decrypt($trkodemtk))
+                                ->where('scoring.nim', '=', $getnim[0]->nim)
+                                ->whereNotIn('scoring.kategori_ujian', ['UTS', 'UAS'])
+                                ->get();
+        //dd($getlastscoresession[0]->last_session);
+
+        return view('layouts.student.detailcourse')->with(['detailjadwal'=>$getmateri,'matkul'=>$matakuliah,'periode'=>$periode,'gabel'=>$getgayabelajar[0]->dominan,'lastsessionscore'=>$getlastscoresession[0]->last_session]);
         
+    }
+
+    public function downloadmatericourse($filemateri){
+        $extfil = explode(".",$filemateri);
+        return Storage::disk('public')->download('file/materikuliah/'.$filemateri);
+    }
+
+    public function getAffection($mastery, $level){
+        
+        $affection = '';
+
+        if ($mastery == 'low') {
+            if ($level == 'low') {
+                $affection = 'Apathy';
+            } elseif ($level == 'medium') {
+                $affection = 'Worry';
+            } elseif ($level == 'high') {
+                $affection = 'Anxiety';
+            }
+        } elseif ($mastery == 'medium') {
+            if ($level == 'low') {
+                $affection = 'Boredom';
+            } elseif ($level == 'medium') {
+                if ($affection == 'Netral') {
+                    $affection = 'Netral';
+                } elseif ($affection == 'Arousal') {
+                    $affection = 'Arousal';
+                }
+            } elseif ($level == 'high') {
+                $affection = 'Flow';
+            }
+        } elseif ($mastery == 'high') {
+            if ($level == 'low') {
+                $affection = 'Relaxation';
+            } elseif ($level == 'medium') {
+                $affection = 'Control';
+            } elseif ($level == 'high') {
+                $affection = 'Flow';
+            }
+        }
+
+        return $affection;
+
+    }
+
+    public function detailstudentscore($kodemk, $periode, $session){
+        //dd(decrypt($kodemk)."-".decrypt($periode)."-".$session);
+        $user=Auth::user();
+        $getnim = UserModel::join('mahasiswa', 'users.id', '=', 'mahasiswa.user_id')
+                    ->where([
+                        ["mahasiswa.user_id", "=", $user->id],
+                    ])
+                    ->get("mahasiswa.nim");
+
+        $getdif = MateriMatakuliahModel::select('tingkat_kesulitan')
+                    ->where('session','=',$session)
+                    ->get();
+        //dd($getdif[0]->tingkat_kesulitan);
+        $detscore = DB::table('scoring')
+                    ->join('mahasiswa', 'mahasiswa.nim', '=', 'scoring.nim')
+                    ->leftJoin('feedback', 'feedback.id_scoring', '=', 'scoring.id')
+                    ->select('scoring.periode', 'scoring.kode_matakuliah', 'scoring.nim', 'mahasiswa.fotomhs', 'mahasiswa.namadepan', 'mahasiswa.namabelakang', 'scoring.kategori_ujian', 'scoring.final_score', 'scoring.topic_mastery','feedback.saran')
+                    ->whereNotIn('scoring.kategori_ujian', ['UTS', 'UAS'])
+                    ->where('scoring.kategori_ujian', $session)
+                    ->where('scoring.periode', decrypt($periode))
+                    ->where('scoring.kode_matakuliah', decrypt($kodemk))
+                    ->where('scoring.nim', $getnim[0]->nim)
+                    ->get();
+
+       
+        //dump(decrypt($kodemk));
+        $html = "";
+        if(!empty($detscore)){
+            //dd($detscore);
+            $no=1;
+            $angka=0;
+            $arrow="";
+            $message="";
+            if($detscore[0]->final_score>=70 && $detscore[0]->final_score<=100)
+            {
+                $angka=4;
+                $arrow="fa-arrow-up";
+                //$message="Pertahankan nilai anda untuk sesi-sesi berikutnya";
+            }else if($detscore[0]->final_score>=60 && $detscore[0]->final_score<70){
+                $angka=3;
+                $arrow="fa-minus";
+                //$message="Tingkat nilai anda di sesi ini dan silahkan lanjutkan sesi berikutnya";
+            }else if($detscore[0]->final_score < 60){
+                $angka=2;
+                $arrow="fa-arrow-down";
+                //$message="Perbaiki nilai anda di Sesi ini sebelum masuk topik selanjutnya";
+            }
+
+            $html .= "<div class='card-body gradient-".$angka."'>
+                        <div class='media'>
+                            <span class='card-widget__icon'><i class='fa ".$arrow."'></i></span>
+                            <div class='row'>
+                                <div class='col-lg-7'>
+                                    <div class='media-body'>
+                                        <h2 class='card-widget__title'>Nilai: ".$detscore[0]->final_score."</h2>
+                                        <h5 class='card-widget__subtitle text-capitalize'>".$detscore[0]->topic_mastery."</h5>
+                                    </div>
+                                </div>
+                                <div class='col-lg-5'>
+                                    <div class='media-body'>
+                                        <table>
+                                            <tr>
+                                                <td>Feedback:</td>
+                                            </tr>
+                                            <tr>
+                                                <td>".$detscore[0]->saran."</td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>";
+
+        //   foreach($detscore as $dts){
+            
+        //    $html .= "<tr>
+        //         <td width='10%'>".$no."</td>
+        //         <td width='15%'>".$dts->nim."</td>
+        //         <td width='30%'>".$dts->namadepan." ".$dts->namabelakang."</td>
+        //         <td width='15%'>".$dts->final_score."</td>
+        //         <td width='20%'>".$dts->topic_mastery."</td>
+        //         <td width='10%'>".$this->getAffection($dts->topic_mastery,$getdif[0]->tingkat_kesulitan)."</td>
+        //      </tr>
+        //      ";
+        //      $no++;
+        //   }
+        }
+
+        //echo $html;
+
+        $response['html'] = $html;
+  
+        return response()->json($response);
     }
 
 }

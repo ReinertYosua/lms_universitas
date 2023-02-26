@@ -1,5 +1,5 @@
 @extends('layouts.master')
-@section('title','List Penilaian Matakuliah')
+@section('title','List Feedback Matakuliah')
 
 @section('content')
 <div class="container-fluid mt-3">
@@ -7,7 +7,7 @@
                 <div class="col p-md-0">
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
-                        <li class="breadcrumb-item active"><a href="{{ route('listcourse.score') }}">List Matakuliah Input Nilai</a></li>
+                        <li class="breadcrumb-item active"><a href="{{ route('listcourse.feedback') }}">List Matakuliah Feedback</a></li>
                         
                     </ol>
                 </div>
@@ -21,7 +21,7 @@
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-12">
-                                        <h4 class="card-title">List Penilaian Matakuliah Periode {{ $periode }} </h4>
+                                        <h4 class="card-title">List Feedback Matakuliah Periode {{ $periode }} </h4>
                                     </div>
                                 </div>
                                 <!--  -->
@@ -36,14 +36,14 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            @foreach($matkulscore as $mk)
+                                            @foreach($matkulfeedback as $mk)
                                             <tr>
                                                 <td>{{ $mk->kode_matakuliah }}</td>
                                                 <td>{{ $mk->nama_matakuliah }}</td>
                                                 <td>{{ $mk->sks }}</td>
                                                 <td>
-                                                    <a href="{{ route('input.score', ['kodemk'=>encrypt($mk->kode_matakuliah)])}}" class=" btn btn-info" data-toggle="tooltip" data-placement="top" data-original-title="Input & Edit Nilai"><i class="fa fa-edit"></i></a>
-                                                    <a href="#" class="btn btn-success viewdetails" data-toggle="modal" data-placement="top" data-original-title="Lihat Nilai" data-target="#listNilaiMatkul" data-id="{{ encrypt($mk->kode_matakuliah) }}" data-periode="{{ $periode }}">Lihat Nilai</a>
+                                                    <a href="{{ route('input.feedback', ['kodemk'=>encrypt($mk->kode_matakuliah)])}}" class=" btn btn-info" data-toggle="tooltip" data-placement="top" data-original-title="Input & Edit Feedback"><i class="fa fa-edit"></i></a>
+                                                    <a href="#" class="btn btn-success viewdetails" data-toggle="modal" data-placement="top" data-original-title="Lihat Feedback" data-target="#listNilaiMatkul" data-id="{{ encrypt($mk->kode_matakuliah) }}" data-periode="{{ $periode }}">Lihat Feedback</a>
                                                 </td>
                                             </tr>
                                             @endforeach
@@ -66,13 +66,13 @@
                                         <div class="modal-dialog modal-lg">
                                             <div class="modal-content">
                                                 <div class="modal-header">
-                                                    <h5 class="modal-title">List Nilai <span id="matkul"></span></h5>
+                                                    <h5 class="modal-title">List Feedback <span id="matkul"></span></h5>
                                                     <button type="button" class="close" data-dismiss="modal"><span>&times;</span>
                                                     </button>
                                                 </div>
                                                 <div class="modal-body">
                                                     <div class="table-responsive">
-                                                        <table class="w-100 table" id="tblempinfo">
+                                                        <table class="table" id="tblempinfo">
                                                             <thead>
                                                                 <tr>
                                                                     <th>NIM</th>
@@ -122,7 +122,7 @@
           if(kodemk!=""){
 
              // AJAX request
-             var url = "{{ route('detail.score',[':kodemk',':periode']) }}";
+             var url = "{{ route('detail.feedback',[':kodemk',':periode']) }}";
              url = url.replace(':kodemk', kodemk).replace(':periode', periode);
              
              // Empty modal data

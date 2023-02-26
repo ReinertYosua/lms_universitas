@@ -77,7 +77,11 @@ Route::group(['middleware'=>['auth']],function(){
             Route::post('/dosen/nilai', 'submitscore')->name('submit.score');
             Route::get('/dosen/nilai/mahasiswa/{kodemk}/{periode}', 'detailscore')->name('detail.score');
             Route::get('/dosen/nilai/mahasiswa/sesi/{kodemk}/{periode}/{session}', 'detaillecturerscore')->name('detaillecturer.score');
-            
+            Route::get('/dosen/feedback', 'listcoursefeedback')->name('listcourse.feedback');
+            Route::get('/dosen/feedback/{kodemk}', 'inputfeedback')->name('input.feedback');
+            Route::get('/dosen/feedback/mahasiswa/sesi/{kodemk}/{periode}/{session}', 'detaillecturerfeedback')->name('detaillecturer.feedback');
+            Route::post('/dosen/feedback', 'submitfeedback')->name('submit.feedback');
+            Route::get('/dosen/feedback/mahasiswa/{kodemk}/{periode}', 'detailfeedback')->name('detail.feedback');
         });
     });
 
@@ -92,6 +96,8 @@ Route::group(['middleware'=>['auth']],function(){
             Route::get('/mahasiswa/addmatakuliah/{mkkode}', 'addtrcourse')->name('addtr.course');
             Route::get('/mahasiswa/jadwalkuliah', 'schedulecourse')->name('schedule.course');
             Route::get('/mahasiswa/detailjadwal/{trkodemtk}/{periode}', 'detailschedule')->name('detailschedule.course');
+            Route::get('/mahasiswa/downloadmateri/{filemateri}', 'downloadmatericourse')->name('downloadmateri.course');
+            Route::get('/mahasiswa/detailjadwal/nilai/sesi/{kodemk}/{periode}/{session}', 'detailstudentscore')->name('detailstudent.score');
         });
     });
 });

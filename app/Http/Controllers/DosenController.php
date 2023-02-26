@@ -13,6 +13,7 @@ use App\Models\Dosen as DosenModel;
 use App\Models\TransaksiMatakuliah as TransaksiMatakuliahModel;
 use App\Models\Periode as PeriodeModel;
 use App\Models\Scoring as ScoringModel;
+use App\Models\Feedback as FeedbackModel;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Response;
@@ -539,20 +540,29 @@ class DosenController extends Controller
     }
 
     public function detailscore($kodemk, $periode){
-        // $detscore = ScoringModel::select('scoring.nim', 'mahasiswa.namadepan', 'mahasiswa.namabelakang', 'scoring.kode_matakuliah', 'matakuliah.nama_matakuliah', 'scoring.kategori_ujian', 'scoring.final_score', 'scoring.topic_mastery')
-        //             ->join('mahasiswa', 'mahasiswa.nim', '=', 'scoring.nim')
-        //             ->join('matakuliah', 'matakuliah.kode_matakuliah', '=', 'scoring.kode_matakuliah')
-        //             ->where('scoring.kode_matakuliah', '=', decrypt($kodemk))
-        //             ->where('scoring.periode', '=', $periode)
-        //             ->where('scoring.kategori_ujian', '=', 'UTS')
-        //             ->orWhere('scoring.kategori_ujian', '=', 'UAS')
-        //             ->orderBy('mahasiswa.namadepan')
-        //             ->orderBy('scoring.kategori_ujian')
-        //             ->get();
-        $detscore = $result = DB::table('scoring')
-                    ->select('scoring.periode', 'scoring.nim', 'scoring.kode_matakuliah', 'mahasiswa.namadepan', 'mahasiswa.namabelakang', 
-                            DB::raw('MAX(CASE WHEN scoring.kategori_ujian = \'UTS\' THEN scoring.final_score END) AS UTS'), 
-                            DB::raw('MAX(CASE WHEN scoring.kategori_ujian = \'UAS\' THEN scoring.final_score END) AS UAS'))
+        
+        $detscore = ScoringModel::select(
+                        'scoring.periode',
+                        'scoring.nim',
+                        'scoring.kode_matakuliah',
+                        'mahasiswa.namadepan', 
+                        'mahasiswa.namabelakang', 
+                        DB::raw("MAX(CASE WHEN scoring.kategori_ujian = '1' THEN scoring.final_score END) AS sesi1"),
+                        DB::raw("MAX(CASE WHEN scoring.kategori_ujian = '2' THEN scoring.final_score END) AS sesi2"),
+                        DB::raw("MAX(CASE WHEN scoring.kategori_ujian = '3' THEN scoring.final_score END) AS sesi3"),
+                        DB::raw("MAX(CASE WHEN scoring.kategori_ujian = '4' THEN scoring.final_score END) AS sesi4"),
+                        DB::raw("MAX(CASE WHEN scoring.kategori_ujian = '5' THEN scoring.final_score END) AS sesi5"),
+                        DB::raw("MAX(CASE WHEN scoring.kategori_ujian = '6' THEN scoring.final_score END) AS sesi6"),
+                        DB::raw("MAX(CASE WHEN scoring.kategori_ujian = '7' THEN scoring.final_score END) AS sesi7"),
+                        DB::raw("MAX(CASE WHEN scoring.kategori_ujian = '8' THEN scoring.final_score END) AS sesi8"),
+                        DB::raw("MAX(CASE WHEN scoring.kategori_ujian = '9' THEN scoring.final_score END) AS sesi9"),
+                        DB::raw("MAX(CASE WHEN scoring.kategori_ujian = '10' THEN scoring.final_score END) AS sesi10"),
+                        DB::raw("MAX(CASE WHEN scoring.kategori_ujian = '11' THEN scoring.final_score END) AS sesi11"),
+                        DB::raw("MAX(CASE WHEN scoring.kategori_ujian = '12' THEN scoring.final_score END) AS sesi12"),
+                        DB::raw("MAX(CASE WHEN scoring.kategori_ujian = '13' THEN scoring.final_score END) AS sesi13"),
+                        DB::raw("MAX(CASE WHEN scoring.kategori_ujian = 'UTS' THEN scoring.final_score END) AS sesiUTS"),
+                        DB::raw("MAX(CASE WHEN scoring.kategori_ujian = 'UAS' THEN scoring.final_score END) AS sesiUAS")
+                    )
                     ->join('mahasiswa', 'mahasiswa.nim', '=', 'scoring.nim')
                     ->where('scoring.kode_matakuliah', '=', decrypt($kodemk))
                     ->where('scoring.periode', '=', $periode)
@@ -568,10 +578,23 @@ class DosenController extends Controller
           foreach($detscore as $dts){
 
            $html .= "<tr>
-                <td width='30%'>".$dts->nim."</td>
-                <td width='40%'>".$dts->namadepan.$dts->namabelakang."</td>
-                <td width='20%'>".$dts->UTS."</td>
-                <td width='10%'>".$dts->UAS."</td>
+                    <td>".$dts->nim."</td>
+                    <td>".$dts->namadepan.$dts->namabelakang."</td>
+                    <td>".$dts->sesi1."</td>
+                    <td>".$dts->sesi2."</td>
+                    <td>".$dts->sesi3."</td>
+                    <td>".$dts->sesi4."</td>
+                    <td>".$dts->sesi5."</td>
+                    <td>".$dts->sesi6."</td>
+                    <td>".$dts->sesi7."</td>
+                    <td>".$dts->sesi8."</td>
+                    <td>".$dts->sesi9."</td>
+                    <td>".$dts->sesi10."</td>
+                    <td>".$dts->sesi11."</td>
+                    <td>".$dts->sesi12."</td>
+                    <td>".$dts->sesi13."</td>
+                    <td>".$dts->sesiUTS."</td>
+                    <td>".$dts->sesiUAS."</td>
              </tr>
              ";
           }
@@ -723,5 +746,240 @@ class DosenController extends Controller
         $response['html'] = $html;
   
         return response()->json($response);
+    }
+
+    public function listcoursefeedback(){
+        $todayDate = Carbon::now();
+        //dd($todayDate);
+        $getPeriode = PeriodeModel::whereRaw('tanggal_awal <= ? and tanggal_akhir >= ?', [$todayDate, $todayDate])->get();
+
+        //dd($getPeriode[0]->kode_periode);
+
+        $iddosen = DosenModel::where('user_id',Auth::user()->id)->get();
+        $getCourse = TransaksiMatakuliahModel::join('matakuliah','matakuliah.kode_matakuliah','=','transaksimatakuliah.kode_matakuliah')
+                        ->select('transaksimatakuliah.kode_matakuliah','matakuliah.nama_matakuliah','matakuliah.sks')
+                        ->where([
+                                ['matakuliah.id_dosen','=',$iddosen[0]->id],
+                                ['transaksimatakuliah.periode','=',$getPeriode[0]->kode_periode]
+                                ])
+                        ->groupBy('transaksimatakuliah.kode_matakuliah')
+                        ->get();
+                        
+        return view('layouts.lecturer.listcoursefeedback')->with(['matkulfeedback'=>$getCourse,'periode'=>$getPeriode[0]->kode_periode]);
+    }
+
+    public function inputfeedback($kodemk){
+        $todayDate = Carbon::now();
+        //dd($todayDate);
+        $getPeriode = PeriodeModel::whereRaw('tanggal_awal <= ? and tanggal_akhir >= ?', [$todayDate, $todayDate])->get();
+
+        $getStudents = TransaksiMatakuliahModel::join('matakuliah','matakuliah.kode_matakuliah','=','transaksimatakuliah.kode_matakuliah')
+                        ->join('mahasiswa','mahasiswa.nim','=','transaksimatakuliah.nim')
+                        ->select('transaksimatakuliah.kode_matakuliah','matakuliah.nama_matakuliah','matakuliah.sks','transaksimatakuliah.nim','mahasiswa.nim','mahasiswa.namadepan','mahasiswa.namabelakang','mahasiswa.fotomhs')
+                        ->where([
+                            ['transaksimatakuliah.kode_matakuliah','=',decrypt($kodemk)],
+                            ['transaksimatakuliah.periode','=',$getPeriode[0]->kode_periode]
+                            ])
+                        ->get();
+
+        $getSession= MateriMatakuliahModel::join('matakuliah','matakuliah.id','=','materi_matakuliah.id_matakuliah')
+                    ->select('materi_matakuliah.session')
+                    ->where('matakuliah.kode_matakuliah','=',decrypt($kodemk))
+                    ->get();
+        //dd($getSession);
+        
+        return view('layouts.lecturer.liststudentfeedback')->with(['mhsscore'=>$getStudents, 'periode'=>$getPeriode[0]->kode_periode,'session'=>$getSession]);
+    }
+
+    public function detaillecturerfeedback($kodemk, $periode, $session){
+        //dd(decrypt($kodemk)."-".decrypt($periode)."-".$session);
+        $getdif = MateriMatakuliahModel::select('tingkat_kesulitan')
+                    ->where('session','=',$session)
+                    ->get();
+        //dd($getdif[0]->tingkat_kesulitan);
+        $getStudents = $scoringData = ScoringModel::join('matakuliah', 'matakuliah.kode_matakuliah', '=', 'scoring.kode_matakuliah')
+                        ->join('mahasiswa', 'mahasiswa.nim', '=', 'scoring.nim')
+                        ->select('matakuliah.kode_matakuliah', 'matakuliah.nama_matakuliah', 'matakuliah.sks', 'mahasiswa.nim', 'mahasiswa.namadepan', 'mahasiswa.namabelakang', 'mahasiswa.fotomhs', 'scoring.id','scoring.final_score', 'scoring.kategori_ujian', 'scoring.topic_mastery')
+                        ->where('scoring.kode_matakuliah', '=', decrypt($kodemk))
+                        ->where('scoring.periode', '=', $periode)
+                        ->where('scoring.kategori_ujian', '=', $session)
+                        ->get();
+    
+
+        //dd($getStudents);
+
+        //dump(decrypt($kodemk));
+        $html = "";
+        if(!empty($getStudents)){
+            //dd($detscore);
+            $no=1;
+            $label="";
+          foreach($getStudents as $get){
+            if($get->topic_mastery=='high'){
+                $label="label-success";
+            }else if($get->topic_mastery=='medium'){
+                $label="label-warning";
+            }else if($get->topic_mastery=='low'){
+                $label="label-danger";
+            }
+            $url = asset('storage/foto/mahasiswa/'.$get->fotomhs.'');
+           $html .= "
+            <tr>
+                <td><img src='".$url."' class='rounded-circle mr-3' alt=''><label class='col-form-label' for='".$get->nim."'>".$get->nim." - ".$get->namadepan." ".$get->namabelakang ."</td>
+                <td>
+                    <span>".$get->final_score."</span>
+                    
+                </td>
+                <td>
+                    <span class='label ".$label." text-capitalize'>".$get->topic_mastery."</span>
+                </td>
+                <td>
+                    <textarea class='form-control' name='fscore_".$get->id."' id='fscore_".$get->id."' cols='30' rows='3' placeholder='Masukkan Feedback' disabled></textarea>
+                </td>
+                
+                <td>
+                    <div class='input-group-text'>
+                        <input type='checkbox' name='chkScore[]' id='chkScore' value='".$get->id."' onclick='checkmhs()'>
+                    </div>
+                </td>
+            </tr>
+             ";
+             $no++;
+          }
+        }
+
+        //echo $html;
+
+        $response['html'] = $html;
+  
+        return response()->json($response);
+    }
+
+    public function submitfeedback(Request $request){
+        //dd($request->chkScore);
+        //$periode = decrypt($request->periode);
+        //$kode_mk = decrypt($request->kode_mk);
+        $iddosen = DosenModel::where('user_id',Auth::user()->id)->get();
+        $kategori = $request->kategori;
+
+        $rules =[
+            'kategori' => 'required',
+            'chkScore' => 'required',
+        ];
+        $id=
+        [
+            'required' => ':attribute wajib diisi.',
+            'size' => ':attribute harus berukuran :size karakter.',
+            'max' => ':attribute maksimal berisi :max karakter.',
+            'min' => ':attribute minimal berisi :min karakter.',
+            'email' => ':attribute harus diisi dengan alamat email yang valid.',
+        ];
+
+        $validator = Validator::make($request->all(),$rules,$id);
+        if ($validator->fails()) {
+			return redirect()->back()
+			->withInput()
+			->with('danger','Harus memilih mahasiswa terlebih dahulu');
+		}else{
+            //dd($request);
+            
+            foreach($request->chkScore as $key1 => $value1){
+                $data = $request->except('_token','periode','kategori','kode_mk','active','chkScore');
+                //echo $value1."a<br>";
+                foreach ($data as $key => $value) {
+                    $id_scoring = explode("_",$key);
+                    if($value1==$id_scoring[1]){//cek idscoring jika nim sama dengan yang dipilih
+                        //echo $value1."-".$id_scoring[1]."".$value."<br>";
+                        //cek jika feedback exists
+                        $feedbackexists=FeedbackModel::where('id_scoring','=',$id_scoring[1])
+                                        ->exists();
+                        if($feedbackexists){
+                            $dmk = FeedbackModel::where('id_scoring','=',$id_scoring[1])
+                                ->update(['saran' => $value,'id_dosen' => $iddosen[0]->id]);
+                        }else{
+                            $dmk=FeedbackModel::create([
+                                'id_scoring' => $id_scoring[1],
+                                'saran' => $value,
+                                'id_dosen' => $iddosen[0]->id,
+                            ]);
+                        }
+
+                    }
+                }
+                
+            }
+            return redirect()->route('listcourse.feedback')->with('success','Berhasil submit feedback.');
+        }
+        
+    }
+
+    public function detailfeedback($kodemk, $periode){
+       
+        $detfeedback = ScoringModel::select(
+                        'scoring.periode',
+                        'scoring.nim',
+                        'scoring.kode_matakuliah',
+                        'mahasiswa.namadepan', 
+                        'mahasiswa.namabelakang', 
+                        DB::raw("MAX(CASE WHEN scoring.kategori_ujian = '1' THEN feedback.saran END) AS sesi1"),
+                        DB::raw("MAX(CASE WHEN scoring.kategori_ujian = '2' THEN feedback.saran END) AS sesi2"),
+                        DB::raw("MAX(CASE WHEN scoring.kategori_ujian = '3' THEN feedback.saran END) AS sesi3"),
+                        DB::raw("MAX(CASE WHEN scoring.kategori_ujian = '4' THEN feedback.saran END) AS sesi4"),
+                        DB::raw("MAX(CASE WHEN scoring.kategori_ujian = '5' THEN feedback.saran END) AS sesi5"),
+                        DB::raw("MAX(CASE WHEN scoring.kategori_ujian = '6' THEN feedback.saran END) AS sesi6"),
+                        DB::raw("MAX(CASE WHEN scoring.kategori_ujian = '7' THEN feedback.saran END) AS sesi7"),
+                        DB::raw("MAX(CASE WHEN scoring.kategori_ujian = '8' THEN feedback.saran END) AS sesi8"),
+                        DB::raw("MAX(CASE WHEN scoring.kategori_ujian = '9' THEN feedback.saran END) AS sesi9"),
+                        DB::raw("MAX(CASE WHEN scoring.kategori_ujian = '10' THEN feedback.saran END) AS sesi10"),
+                        DB::raw("MAX(CASE WHEN scoring.kategori_ujian = '11' THEN feedback.saran END) AS sesi11"),
+                        DB::raw("MAX(CASE WHEN scoring.kategori_ujian = '12' THEN feedback.saran END) AS sesi12"),
+                        DB::raw("MAX(CASE WHEN scoring.kategori_ujian = '13' THEN feedback.saran END) AS sesi13"),
+                        DB::raw("MAX(CASE WHEN scoring.kategori_ujian = 'UTS' THEN feedback.saran END) AS sesiUTS"),
+                        DB::raw("MAX(CASE WHEN scoring.kategori_ujian = 'UAS' THEN feedback.saran END) AS sesiUAS")
+                    )
+                    ->join('feedback', 'feedback.id_scoring', '=', 'scoring.id')
+                    ->join('mahasiswa', 'mahasiswa.nim', '=', 'scoring.nim')
+                    ->where('scoring.kode_matakuliah', '=', decrypt($kodemk))
+                    ->where('scoring.periode', '=', $periode)
+                    ->groupBy('scoring.periode', 'scoring.nim', 'scoring.kode_matakuliah')
+                    ->get();
+
+        //dd($detfeedback);
+
+        //dump(decrypt($kodemk));
+        $html = "";
+        if(!empty($detfeedback)){
+            //dd($detscore);
+          foreach($detfeedback as $dts){
+
+           $html .= "<tr>
+                <td>".$dts->nim."</td>
+                <td>".$dts->namadepan.$dts->namabelakang."</td>
+                <td>".$dts->sesi1."</td>
+                <td>".$dts->sesi2."</td>
+                <td>".$dts->sesi3."</td>
+                <td>".$dts->sesi4."</td>
+                <td>".$dts->sesi5."</td>
+                <td>".$dts->sesi6."</td>
+                <td>".$dts->sesi7."</td>
+                <td>".$dts->sesi8."</td>
+                <td>".$dts->sesi9."</td>
+                <td>".$dts->sesi10."</td>
+                <td>".$dts->sesi11."</td>
+                <td>".$dts->sesi12."</td>
+                <td>".$dts->sesi13."</td>
+                <td>".$dts->sesiUTS."</td>
+                <td>".$dts->sesiUAS."</td>
+             </tr>
+             ";
+          }
+        }
+
+        //echo $html;
+
+        $response['html'] = $html;
+  
+        return response()->json($response);
+
     }
 }

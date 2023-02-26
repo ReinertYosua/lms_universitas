@@ -154,8 +154,6 @@
                     // Add employee details
                     $('#tblempinfo tbody').html(response.html);
 
-                    // Display Modal
-                    $('#listNilaiMatkul').modal('show'); 
                 }
             });
         }
@@ -183,8 +181,7 @@
                      // Add employee details
                      $('#tblempinfo tbody').html(response.html);
 
-                     // Display Modal
-                     $('#listNilaiMatkul').modal('show'); 
+                    
                  }
              });
           }
