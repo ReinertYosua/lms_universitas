@@ -52,10 +52,11 @@
                             <div class="wrapper-nav">
                                 <nav class="nav nav-tabs list mt-2" id="myTab" role="tablist">
                                     @foreach($detailjadwal as $dt)
-                                    <a class="nav-item nav-link {{($loop->iteration==$lastsessionscore)?'active':''}} detailsession" data-toggle="tab" href="#tab{{$loop->iteration}}" role="tab" aria-controls="public" aria-expanded="true" data-id="{{ encrypt($matkul[0]->kode_matakuliah) }}" data-periode="{{ $periode }}" data-sesi="{{ $dt->session }}">Session {{ $dt->session }}</a>
+                                    <a class="nav-item nav-link {{($loop->iteration==$lastsessionscore)?'active':''}} detailsession" data-toggle="tab" href="#tab{{$loop->iteration}}" role="tab" aria-controls="public" aria-expanded="true" data-id="{{ encrypt($matkul[0]->kode_matakuliah) }}" data-periode="{{ $periode }}" data-sesi="{{ $dt->session }}" data-materi="{{$dt->id}}">Session {{ $dt->session }}</a>
                                     <input type="hidden" id="kodemk" value="{{ encrypt($matkul[0]->kode_matakuliah) }}">
                                     <input type="hidden" id="periode" value="{{ $periode }}">
                                     <input type="hidden" id="session" value="{{ $lastsessionscore }}">
+                                    <input type="hidden" id="materi" value="{{ $dt->id }}">
                                     <!-- <a class="nav-item nav-link" href="#tab2" role="tab" data-toggle="tab">Tab 2</a> -->
                                     @endforeach
                                     <!-- <a class="nav-item nav-link" href="#tab2" role="tab" data-toggle="tab">Session 14</a> -->
@@ -93,56 +94,15 @@
                                                 </div> -->
                                             </div>
                                             <div class="table-responsive">
-                                                <table class="table">
+                                                <table class="table" id="tblfileinfo">
                                                 <thead>
                                                     <tr>
                                                     <th>Gaya Belajar</th>
                                                     <th>Material</th>
+                                                    <th>Tipe</th>
                                                     </tr>
                                                 </thead>
-                                                    <tr>
-                                                        <td>General</td><td><a href="{{ route('downloadmateri.course', $dt->file_materi) }}">{{ $dt->file_materi }}</a></td>
-                                                    </tr>
-                                                    @if($gabel=="Active")
-                                                    <tr>
-                                                        <td>Active</td><td><a href="{{ route('downloadmateri.course', $dt->file_active) }}">{{ $dt->file_active }}</a></td>
-                                                    </tr>
-                                                    @endif
-                                                    @if($gabel=="Reflective")
-                                                    <tr>
-                                                        <td>Reflective</td><td><a href="{{ route('downloadmateri.course', $dt->file_reflective) }}">{{ $dt->file_reflective }}</a></td>
-                                                    </tr>
-                                                    @endif
-                                                    @if($gabel=="Sensing")
-                                                    <tr>
-                                                        <td>Sensing</td><td><a href="{{ route('downloadmateri.course', $dt->file_sensing) }}">{{ $dt->file_sensing }}</a></td>
-                                                    </tr>
-                                                    @endif
-                                                    @if($gabel=="Intuitive")
-                                                    <tr>
-                                                        <td>Intuitive</td><td><a href="{{ route('downloadmateri.course', $dt->file_intuitive) }}">{{ $dt->file_intuitive }}</a></td>
-                                                    </tr>
-                                                    @endif
-                                                    @if($gabel=="Visual")
-                                                    <tr>
-                                                        <td>Visual</td><td><a href="{{ route('downloadmateri.course', $dt->file_visual) }}">{{ $dt->file_visual }}</a></td>
-                                                    </tr>
-                                                    @endif
-                                                    @if($gabel=="Visual")
-                                                    <tr>
-                                                        <td>Verbal</td><td><a href="{{ route('downloadmateri.course', $dt->file_verbal) }}">{{ $dt->file_verbal }}</a></td>
-                                                    </tr>
-                                                    @endif
-                                                    @if($gabel=="Sequential")
-                                                    <tr>
-                                                        <td>Sequential</td><td><a href="{{ route('downloadmateri.course', $dt->file_sequential) }}">{{ $dt->file_sequential }}</a></td>
-                                                    </tr>
-                                                    @endif
-                                                    @if($gabel=="Global")
-                                                    <tr>
-                                                        <td>Global</td><td><a href="{{ route('downloadmateri.course', $dt->file_global) }}">{{ $dt->file_global }}</a></td>
-                                                    </tr>
-                                                    @endif
+                                                <tbody></tbody>
                                                 </table>
                                             </div>
                                         </div>
@@ -168,6 +128,7 @@ $(document).ready(function(){
     var kodemk = $("#kodemk").val();
     var periode = $("#periode").val();
     var session = $("#session").val();
+    var materi = $("#materi").val();
     //alert(kodemk+"-"+periode+"-"+session);
     if(kodemk!=""){
 
@@ -175,9 +136,11 @@ $(document).ready(function(){
         var url = "{{ route('detailstudent.score',[':kodemk',':periode',':session']) }}";
         url = url.replace(':kodemk', kodemk).replace(':periode', periode).replace(':session', session);
         
+        var urla = "{{ route('detailstudent.materi', [':kodemk',':idmateri'] ) }}";
+        urla = urla.replace(':kodemk', kodemk).replace(':idmateri', materi);
         // Empty modal data
         $('#widgetscore div').empty();
-
+        $('#tblfileinfo tbody').empty();
         $.ajax({
             url: url,
             dataType: 'json',
@@ -189,6 +152,17 @@ $(document).ready(function(){
                
             }
         });
+
+        $.ajax({
+                url: urla,
+                dataType: 'json',
+                success: function(response) {
+                    $('#tblfileinfo tbody').html(response.html);
+                },
+                error: function(xhr, status, error) {
+                    console.error('Request failed:', error);
+                }
+            });
     }
 
 });
@@ -196,13 +170,17 @@ $('#myTab').on('click','.detailsession',function(){
         var kodemk = $(this).attr('data-id');
         var periode = $(this).attr('data-periode');
         var session = $(this).attr('data-sesi');
-        //alert(kodemk+"-"+periode+"-"+session);
+        var materi = $(this).attr('data-materi');
+        //alert(kodemk+"-"+periode+"-"+session+"-"+materi);
         if(kodemk!=""){
 
             // AJAX request
             var url = "{{ route('detailstudent.score',[':kodemk',':periode',':session']) }}";
             url = url.replace(':kodemk', kodemk).replace(':periode', periode).replace(':session', session);
-            
+
+            var urla = "{{ route('detailstudent.materi', [':kodemk',':idmateri'] ) }}";
+            urla = urla.replace(':kodemk', kodemk).replace(':idmateri', materi);
+            //alert(urla);
             // Empty modal data
             $('#widgetscore div').empty();
 
@@ -211,11 +189,25 @@ $('#myTab').on('click','.detailsession',function(){
                 dataType: 'json',
                 success: function(response){
                     // Add employee details
+                    //alert(response);
                     $('#widgetscore div').html(response.html);
 
                 }
             });
+            
+            $.ajax({
+                url: urla,
+                dataType: 'json',
+                success: function(response) {
+                    $('#tblfileinfo tbody').html(response.html);
+                },
+                error: function(xhr, status, error) {
+                    console.error('Request failed:', error);
+                }
+            });
         }
+
+       
     });
 </script>
 @endsection

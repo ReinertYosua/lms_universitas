@@ -35,11 +35,9 @@
                                             <tr>
                                                 <th>Sesion</th>
                                                 <th>Materi</th>
-                                                <th>Jenis Materi</th>
                                                 <th>Deskripsi</th>
                                                 <th>Referensi</th>
                                                 <th>Tingkat Kesulitan</th>
-                                                <th>File Materi</th>
                                                 <th>Aksi</th>
                                             </tr>
                                         </thead>
@@ -48,47 +46,14 @@
                                             <tr>
                                                 <td>{{ $mmk->session }}</td>
                                                 <td>{{ $mmk->materi }}</td>
-                                                <td>{{ $mmk->jenis_materi }}</td>
                                                 <td>{{ $mmk->deskripsi }}</td>
                                                 <td>{{ $mmk->referensi }}</td>
                                                 <td>{{ $mmk->tingkat_kesulitan }}</td>
                                                 <td>
-                                                    <table>
-                                                        <tr>
-                                                            <td>General</td><td><a href="{{ route('downloadmateri.course', $mmk->file_materi) }}">{{ $mmk->file_materi }}</a></td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>Active</td><td><a href="{{ route('downloadmateri.course', $mmk->file_active) }}">{{ $mmk->file_active }}</a></td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>Reflective</td><td><a href="{{ route('downloadmateri.course', $mmk->file_reflective) }}">{{ $mmk->file_reflective }}</a></td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>Sensing</td><td><a href="{{ route('downloadmateri.course', $mmk->file_sensing) }}">{{ $mmk->file_sensing }}</a></td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>Intuitive</td><td><a href="{{ route('downloadmateri.course', $mmk->file_intuitive) }}">{{ $mmk->file_intuitive }}</a></td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>Visual</td><td><a href="{{ route('downloadmateri.course', $mmk->file_visual) }}">{{ $mmk->file_visual }}</a></td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>Verbal</td><td><a href="{{ route('downloadmateri.course', $mmk->file_verbal) }}">{{ $mmk->file_verbal }}</a></td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>Sequential</td><td><a href="{{ route('downloadmateri.course', $mmk->file_sequential) }}">{{ $mmk->file_sequential }}</a></td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>Global</td><td><a href="{{ route('downloadmateri.course', $mmk->file_global) }}">{{ $mmk->file_global }}</a></td>
-                                                        </tr>
-                                                    </table>
-                                                    
-                                                </td>
-                                                <td>
-                                                    
-                                                    <a href="{{ route('editmateri.course', ['idmkdet'=>encrypt($mmk->id), 'idmk'=>encrypt($mk[0]->id)])}}" class=" btn btn-info" data-toggle="tooltip" data-placement="top" data-original-title="Edit Matakuliah"><i class="fa fa-edit"></i></a>
+                                                <a href="{{ route('file.materi', ['idmkdet'=>encrypt($mmk->id), 'idmk'=>encrypt($mk[0]->id)])}}" class=" btn btn-success" data-toggle="tooltip" data-placement="top" data-original-title="Tambah File Matakuliah"><i class="fa fa-list"></i></a>
+                                                    <a href="{{ route('editmateri.course', ['idmkdet'=>encrypt($mmk->id), 'idmk'=>encrypt($mk[0]->id)])}}" class=" btn btn-info" data-toggle="tooltip" data-placement="top" data-original-title="Edit Sesi Matakuliah"><i class="fa fa-edit"></i></a>
                                                     <form class="my-1"
-                                                    action="{{ route('deletemateri.course', ['idmmk'=>encrypt($mmk->id), 'idmk'=>encrypt($mk[0]->id)]) }}" method="post" onsubmit="return confirm('Apakah anda yakin ingin menghapus Materi {{ $mmk->materi }} ?')">
+                                                    action="{{ route('deletemateri.course', ['idmmk'=>encrypt($mmk->id), 'idmk'=>encrypt($mk[0]->id)]) }}" method="post" onsubmit="return confirm('Apakah anda yakin ingin menghapus Sesi Materi {{ $mmk->materi }} ?')">
                                                     @csrf
                                                     @method('delete')
                                                     <div class="d-grid">
@@ -103,11 +68,9 @@
                                             <tr>
                                                 <th>Sesion</th>
                                                 <th>Materi</th>
-                                                <th>Jenis Materi</th>
                                                 <th>Deskripsi</th>
                                                 <th>Referensi</th>
                                                 <th>Tingkat Kesulitan</th>
-                                                <th>Link Materi</th>
                                                 <th>Aksi</th>
                                             </tr>
                                         </tfoot>

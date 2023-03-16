@@ -70,13 +70,19 @@ Route::group(['middleware'=>['auth']],function(){
             Route::post('/dosen/adddetailmaterimatakuliah', 'createdetailcourse')->name('createdetail.course');
             Route::get('/dosen/editdetailmaterimatakuliah/{idmkdet}/{idmk}', 'editdetailmateri')->name('editmateri.course');
             Route::post('/dosen/editdetailmaterimatakuliah', 'updatedetailcourse')->name('updatedetail.course');
-            Route::get('/dosen/downloadmateri/{filemateri}', 'downloadmatericourse')->name('downloadmateri.course');
+            Route::get('/dosen/downloadmateri/{filemateri}', 'downloadmatericourse')->name('downloadmateridosen.course');
             Route::delete('/dosen/hapusmaterimatakuliah/{idmmk}/{idmk}', 'deletematericourse')->name('deletemateri.course');
+            
+            Route::get('/dosen/filemateri/{idmkdet}/{idmk}', 'filemateri')->name('file.materi');
+            Route::post('/dosen/filemateri', 'prosesfilemateri')->name('prosesfile.materi');
+            Route::delete('/dosen/hapusfilemateri/{id}', 'deletefilemateri')->name('deletefile.materi');
+
             Route::get('/dosen/nilai', 'listcoursescore')->name('listcourse.score');
             Route::get('/dosen/nilai/{kodemk}', 'inputscore')->name('input.score');
             Route::post('/dosen/nilai', 'submitscore')->name('submit.score');
             Route::get('/dosen/nilai/mahasiswa/{kodemk}/{periode}', 'detailscore')->name('detail.score');
             Route::get('/dosen/nilai/mahasiswa/sesi/{kodemk}/{periode}/{session}', 'detaillecturerscore')->name('detaillecturer.score');
+            
             Route::get('/dosen/feedback', 'listcoursefeedback')->name('listcourse.feedback');
             Route::get('/dosen/feedback/{kodemk}', 'inputfeedback')->name('input.feedback');
             Route::get('/dosen/feedback/mahasiswa/sesi/{kodemk}/{periode}/{session}', 'detaillecturerfeedback')->name('detaillecturer.feedback');
@@ -98,6 +104,7 @@ Route::group(['middleware'=>['auth']],function(){
             Route::get('/mahasiswa/detailjadwal/{trkodemtk}/{periode}', 'detailschedule')->name('detailschedule.course');
             Route::get('/mahasiswa/downloadmateri/{filemateri}', 'downloadmatericourse')->name('downloadmateri.course');
             Route::get('/mahasiswa/detailjadwal/nilai/sesi/{kodemk}/{periode}/{session}', 'detailstudentscore')->name('detailstudent.score');
+            Route::get('/mahasiswa/detailjadwal/materi/{kodemk}/{idmateri}', 'detailstudentmateri')->name('detailstudent.materi');
         });
     });
 });

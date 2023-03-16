@@ -14,6 +14,7 @@ use App\Models\Matakuliah as MatakuliahModel;
 use App\Models\TransaksiMatakuliah as TransaksiMatakuliahModel;
 use App\Models\MateriMatakuliah as MateriMatakuliahModel;
 use App\Models\Scoring as ScoringModel;
+use App\Models\FileMateri as FileMateriModel;
 use Carbon\Carbon;
 use DB;
 use Illuminate\Support\Facades\Storage;
@@ -460,7 +461,7 @@ class MahasiswaController extends Controller
        
         $getmateri = MateriMatakuliahModel::join('matakuliah','matakuliah.id','=','materi_matakuliah.id_matakuliah')
                     ->where([["matakuliah.kode_matakuliah", "=", decrypt($trkodemtk)]])
-                    ->select('materi_matakuliah.id','materi_matakuliah.session','materi_matakuliah.materi','materi_matakuliah.jenis_materi','materi_matakuliah.deskripsi','materi_matakuliah.referensi','materi_matakuliah.tingkat_kesulitan','materi_matakuliah.file_materi','materi_matakuliah.file_active','materi_matakuliah.file_reflective','materi_matakuliah.file_sensing','materi_matakuliah.file_intuitive','materi_matakuliah.file_visual','materi_matakuliah.file_verbal','materi_matakuliah.file_sequential','materi_matakuliah.file_global')
+                    ->select('materi_matakuliah.id','materi_matakuliah.session','materi_matakuliah.materi','materi_matakuliah.deskripsi','materi_matakuliah.referensi','materi_matakuliah.tingkat_kesulitan')
                     ->get();
 
         $getgayabelajar = ScoreModel::where('nim','=',$getnim[0]->nim)
@@ -521,6 +522,37 @@ class MahasiswaController extends Controller
 
         return $affection;
 
+    }
+
+    public function detailstudentmateri($kodemk,$idmateri){
+        $user=Auth::user();
+        $getgabel = UserModel::join('mahasiswa', 'users.id', '=', 'mahasiswa.user_id')
+                    ->join('score_jawaban', 'score_jawaban.nim', '=', 'mahasiswa.nim')
+                    ->where([
+                        ["mahasiswa.user_id", "=", $user->id],
+                    ])
+                    ->get("score_jawaban.dominan");
+        //dd($getnim);
+        $getfile = FileMateriModel::where('id_materi_mtk','=',$idmateri)
+                    ->orderBy('gaya_belajar', 'asc')
+                    ->get();
+        
+                    $html = "";
+        foreach($getfile as $gf){
+    
+            if($getgabel[0]->dominan == $gf->gaya_belajar || $gf->gaya_belajar == 'General'){
+                $html .= "<tr>
+                    <td width='10%'>".$gf->gaya_belajar."</td>
+                    <td width='15%'><a href='".route('downloadmateri.course',$gf->file_materi)."'>".$gf->file_materi."</a></td>
+                    <td width='30%'>".$gf->jenis_materi."</td>
+                </tr>
+                ";
+                }
+            }
+            
+            $response['html'] = $html;
+  
+            return response()->json($response);
     }
 
     public function detailstudentscore($kodemk, $periode, $session){
