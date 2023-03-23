@@ -88,6 +88,9 @@ Route::group(['middleware'=>['auth']],function(){
             Route::get('/dosen/feedback/mahasiswa/sesi/{kodemk}/{periode}/{session}', 'detaillecturerfeedback')->name('detaillecturer.feedback');
             Route::post('/dosen/feedback', 'submitfeedback')->name('submit.feedback');
             Route::get('/dosen/feedback/mahasiswa/{kodemk}/{periode}', 'detailfeedback')->name('detail.feedback');
+        
+            Route::get('/dosen/profile', 'profiledosen')->name('profil.dosen');
+            Route::post('/dosen/profile', 'editprofil')->name('submitprofile.dosen');
         });
     });
 
@@ -105,6 +108,7 @@ Route::group(['middleware'=>['auth']],function(){
             Route::get('/mahasiswa/downloadmateri/{filemateri}', 'downloadmatericourse')->name('downloadmateri.course');
             Route::get('/mahasiswa/detailjadwal/nilai/sesi/{kodemk}/{periode}/{session}', 'detailstudentscore')->name('detailstudent.score');
             Route::get('/mahasiswa/detailjadwal/materi/{kodemk}/{idmateri}', 'detailstudentmateri')->name('detailstudent.materi');
+            Route::get('/mahasiswa/email', 'mailinbox')->name('inbox.mahasiswa');
         });
     });
 });

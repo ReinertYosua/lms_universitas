@@ -651,4 +651,8 @@ class MahasiswaController extends Controller
         return response()->json($response);
     }
 
+    public function mailinbox(){
+        return view('layouts.student.mailinboxmhs');
+    }
+
 }

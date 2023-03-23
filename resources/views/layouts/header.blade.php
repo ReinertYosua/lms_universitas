@@ -44,7 +44,7 @@
                 </div>
                 <div class="header-right">
                     <ul class="clearfix">
-                        <!-- <li class="icons dropdown"><a href="javascript:void(0)" data-toggle="dropdown">
+                        <li class="icons dropdown"><a href="javascript:void(0)" data-toggle="dropdown">
                                 <i class="mdi mdi-email-outline"></i>
                                 <span class="badge badge-pill gradient-1">3</span>
                             </a>
@@ -101,8 +101,8 @@
                                     
                                 </div> 
                             </div>
-                        </li> -->
-                        <li class="icons dropdown"><a href="javascript:void(0)" data-toggle="dropdown">
+                        </li>
+                        <!-- <li class="icons dropdown"><a href="javascript:void(0)" data-toggle="dropdown">
                                 <i class="mdi mdi-bell-outline"></i>
                                 <span class="badge badge-pill gradient-2">3</span>
                             </a>
@@ -155,7 +155,7 @@
                                     
                                 </div>
                             </div>
-                        </li>
+                        </li> -->
                         <!-- <li class="icons dropdown d-none d-md-flex">
                             <a href="javascript:void(0)" class="log-user"  data-toggle="dropdown">
                                 <span>English</span>  <i class="fa fa-angle-down f-s-14" aria-hidden="true"></i>
@@ -179,7 +179,12 @@
                                 <div class="dropdown-content-body">
                                     <ul>
                                         <li>
-                                            <a href="#"><i class="icon-user"></i> <span>Profile</span></a>
+                                            @if(Auth::user()->usertype == 2 )
+                                            <a href="{{ route('profil.dosen') }}"><i class="icon-user"></i> <span>Profile</span></a>
+                                            @endif
+                                            @if(Auth::user()->usertype == 3 )
+                                            <a href="{{ route('profil.dosen') }}"><i class="icon-user"></i> <span>Profile</span></a>
+                                            @endif
                                         </li>
                                         <!-- <li>
                                             <a href="javascript:void()">

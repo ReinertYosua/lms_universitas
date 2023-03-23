@@ -15,8 +15,8 @@
                         </ul>
                     </li>
                     <li>
-                        <a href="#" aria-expanded="false">
-                            <i class="icon-badge menu-icon"></i><span class="nav-text">Profile</span>
+                        <a href="{{ route('inbox.mahasiswa') }}" aria-expanded="false">
+                            <i class="icon-envelope menu-icon"></i><span class="nav-text">Email</span>
                         </a>
                     </li>
                 @auth

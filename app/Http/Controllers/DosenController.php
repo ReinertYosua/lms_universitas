@@ -15,11 +15,13 @@ use App\Models\Periode as PeriodeModel;
 use App\Models\Scoring as ScoringModel;
 use App\Models\Feedback as FeedbackModel;
 use App\Models\FileMateri as FileMateriModel;
+use App\Models\Email as EmailModel;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Response;
 use DB;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Hash;
 
 
 class DosenController extends Controller
@@ -822,7 +824,7 @@ class DosenController extends Controller
                     ->where('session','=',$session)
                     ->get();
         //dd($getdif[0]->tingkat_kesulitan);
-        $getStudents = $scoringData = ScoringModel::join('matakuliah', 'matakuliah.kode_matakuliah', '=', 'scoring.kode_matakuliah')
+        $getStudents =  ScoringModel::join('matakuliah', 'matakuliah.kode_matakuliah', '=', 'scoring.kode_matakuliah')
                         ->join('mahasiswa', 'mahasiswa.nim', '=', 'scoring.nim')
                         ->select('matakuliah.kode_matakuliah', 'matakuliah.nama_matakuliah', 'matakuliah.sks', 'mahasiswa.nim', 'mahasiswa.namadepan', 'mahasiswa.namabelakang', 'mahasiswa.fotomhs', 'scoring.id','scoring.final_score', 'scoring.kategori_ujian', 'scoring.topic_mastery')
                         ->where('scoring.kode_matakuliah', '=', decrypt($kodemk))
@@ -927,6 +929,27 @@ class DosenController extends Controller
                                 'saran' => $value,
                                 'id_dosen' => $iddosen[0]->id,
                             ]);
+                            //send email 
+
+                            $fb = FeedbackModel::select('users.id', 'mahasiswa.nim', 'mahasiswa.namadepan', 'feedback.id_dosen', 'scoring.periode', 'scoring.kode_matakuliah', 'matakuliah.nama_matakuliah', 'scoring.kategori_ujian', 'scoring.final_score', 'feedback.saran')
+                                        ->join('scoring', 'scoring.id', '=', 'feedback.id_scoring')
+                                        ->join('mahasiswa', 'mahasiswa.nim', '=', 'scoring.nim')
+                                        ->join('matakuliah', 'matakuliah.kode_matakuliah', '=', 'scoring.kode_matakuliah')
+                                        ->join('users', 'users.id', '=', 'mahasiswa.user_id')
+                                        ->where('feedback.id_scoring', '=', $id_scoring[1])
+                                        ->get();
+                            //print_r($fb);
+                            $pesan ="
+                                Dear ".$fb[0]->namadepan.",</br></br>".$value."</br>".$iddosen[0]->namadsn."
+                            ";
+
+                            $subject = 'Feeback '.$fb[0]->kode_matakuliah.'-'.$fb[0]->nama_matakuliah.' Sesi '.$fb[0]->kategori_ujian;
+                            $sendmail = EmailModel::create([
+                                'subject' => $subject,
+                                'to_id' => $fb[0]->id,
+                                'from_id' => Auth::user()->id,
+                                'body' => $pesan,
+                            ]);
                         }
 
                     }
@@ -1006,5 +1029,95 @@ class DosenController extends Controller
   
         return response()->json($response);
 
+    }
+
+    public function profiledosen(){
+        $getdsn = DosenModel::join('users', 'users.id', '=', 'dosen.user_id')
+            ->where('users.id', '=', Auth::user()->id)
+            ->select('dosen.*', 'users.*')
+            ->get();
+        
+        return view('layouts.lecturer.profildosen')->with(['dsn'=>$getdsn]);
+    }
+
+    public function editprofil(Request $request){
+        //dd($request);
+        $rules =[
+            //'nidn' => 'required|unique:dosen,nidn',
+            //'nama' => 'required',
+            //'tgllahir' => 'required',
+            //'tempatlahir' => 'required',
+            //'jeniskelamin' => 'required',
+            //'alamat' => 'required',
+            //'foto' => 'required',
+            //'tlp' => 'required',
+            //'email' => 'required|email',
+            'password' => 'required',
+            'confirm_password' => 'required',
+        ];
+        $id=
+        [
+            'required' => ':attribute wajib diisi.',
+            'size' => ':attribute harus berukuran :size karakter.',
+            'max' => ':attribute maksimal berisi :max karakter.',
+            'min' => ':attribute minimal berisi :min karakter.',
+            'email' => ':attribute harus diisi dengan alamat email yang valid.',
+        ];
+
+        $validator = Validator::make($request->all(),$rules,$id);
+        if($request->password != "" || $request->confirm_password != ""){
+            if($request->password != $request->confirm_password){
+                //cek jika password tidak sama
+                $validator->after(function ($validator) {
+    
+                    if (request('event') == null) {
+                        //add custom error to the Validator
+                        $validator->errors()->add('password', 'Password tidak sama');
+                    }
+                
+                });
+            }
+        }
+        
+        if ($validator->fails()) {
+			return redirect()->back()
+			->withInput()
+			->withErrors($validator);
+		}else{
+            $getfotodsn = DosenModel::where('user_id', '=', Auth::user()->id)
+            ->get();
+
+            if($request->file('foto')==""){
+                    $imagenameDosen = $getfotodsn[0]->fotodsn;
+            }else{
+                //delete foto lama
+                Storage::delete('public/foto/dosen/'.$getfotodsn[0]->fotodsn);
+                //dd($request);
+                $imageDosen = $request->file('foto');
+                $imagenameDosen = $request->nidn.".".$imageDosen->getClientOriginalExtension();
+                $pathDosen = Storage::disk('public')->putFileAs('foto/dosen', $imageDosen,$imagenameDosen);
+            }
+ 
+
+            $updateuser = UserModel::where('id', Auth::user()->id)
+                                ->update([
+                                    'email' => $request->email,
+                                    'password' => Hash::make($request->password)
+                                ]);
+
+            $updatedosen = DosenModel::where('user_id', Auth::user()->id)
+                            ->update([
+                                //'nidn' => $request->nidn,
+                                'namadsn' => $request->nama,
+                                'tempatlahirdsn' => $request->tempatlahir,
+                                'tgllahirdsn' => $request->tgllahir,
+                                'genderdsn' => $request->jeniskelamin,
+                                'alamatdsn' => $request->alamat,
+                                'fotodsn' => $imagenameDosen,
+                                'notlpdsn' => $request->tlp 
+                            ]);
+
+            return redirect()->back()->with('success','Berhasil Mengubah Profile');
+        }
     }
 }
