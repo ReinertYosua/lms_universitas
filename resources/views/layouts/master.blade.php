@@ -20,11 +20,14 @@
     <!-- Custom Stylesheet -->
     <link href="{{asset('css')}}/style.css" rel="stylesheet">
 
+    <link rel="stylesheet" href="{{asset('plugins')}}/jqueryui/css/jquery-ui.min.css">
+
     <link href="{{asset('css')}}/scrollertab.css" rel="stylesheet">
     <!-- <link href="{{asset('plugins')}}/jquery-steps/css/jquery.steps.css" rel="stylesheet"> -->
     <link href="{{asset('plugins')}}/tables/css/datatable/dataTables.bootstrap4.min.css" rel="stylesheet">
     <script src="{{asset('plugins')}}/jquery/jquery-3.6.3.min.js"></script>
     <script src="{{asset('plugins')}}/chart.js/chart.js"></script>
+    <script src="{{asset('plugins')}}/jqueryui/js/jquery-ui.min.js"></script>
 </head>
 
 <body>
@@ -120,7 +123,12 @@
     <script src="{{asset('plugins')}}/tables/js/jquery.dataTables.min.js"></script>
     <script src="{{asset('plugins')}}/tables/js/datatable/dataTables.bootstrap4.min.js"></script>
     <script src="{{asset('plugins')}}/tables/js/datatable-init/datatable-basic.min.js"></script>
-    
+    <script src="//cdn.ckeditor.com/4.14.1/standard/ckeditor.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('.ckeditor').ckeditor();
+        });
+    </script>
 
 
 </body>

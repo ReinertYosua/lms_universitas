@@ -1,5 +1,5 @@
 @extends('layouts.master')
-@section('title','Email Mahasiswa [Inbox]')
+@section('title','Email Mahasiswa [Read]')
 
 @section('content')
 <div class="container-fluid mt-3">
@@ -20,8 +20,9 @@
                         <div class="card">
                             <div class="card-body">
                                 <div class="email-left-box"><a href="{{ route('compose.mahasiswa') }}" class="btn btn-primary btn-block">Compose</a>
-                                    <div class="mail-list mt-4"><a href="{{ route('inbox.mahasiswa') }}" class="list-group-item border-0 p-r-0"><i class="fa fa-inbox font-18 align-middle mr-2"></i> <b>Inbox</b> <span class="badge badge-primary badge-sm float-right m-t-5">{{ session('totalnotif') }}</span> </a>
-                                        <a href="{{ route('sent.mahasiswa') }}" class="list-group-item border-0 p-r-0"><i class="fa fa-paper-plane font-18 align-middle mr-2"></i>Sent <span class="badge badge-primary badge-sm float-right m-t-5">{{ session('totalnotifsent') }}</span></a>  
+                                    <div class="mail-list mt-4">
+                                        <a href="{{ route('inbox.mahasiswa') }}" class="list-group-item border-0 p-r-0"><i class="fa fa-inbox font-18 align-middle mr-2"></i> <b>Inbox</b> <span class="badge badge-primary badge-sm float-right m-t-5">{{ session('totalnotif') }}</span> </a>
+                                        <a href="{{ route('sent.mahasiswa') }}" class="list-group-item border-0 p-r-0"><i class="fa fa-paper-plane font-18 align-middle mr-2"></i>Sent <span class="badge badge-primary badge-sm float-right m-t-5">{{ session('totalnotifsent') }}</span> </a>  
                                         <!-- <a href="#" class="list-group-item border-0 p-r-0"><i class="fa fa-star-o font-18 align-middle mr-2"></i>Important <span class="badge badge-danger badge-sm float-right m-t-5">47</span> </a>
                                         <a href="#" class="list-group-item border-0 p-r-0"><i class="mdi mdi-file-document-box font-18 align-middle mr-2"></i>Draft</a> -->
                                         <a href="{{ route('inbox.mahasiswa') }}" class="list-group-item border-0 p-r-0"><i class="fa fa-trash font-18 align-middle mr-2"></i>Trash</a>
@@ -41,24 +42,48 @@
                                             </div>
                                         </div>
                                     </div>
+                                    
                                     <div class="email-list m-t-15">
-                                        @foreach($inbox as $inbx)
-                                        <div class="message">
-                                            <a href="email-read.html">
-                                                <div class="col-mail col-mail-1">
-                                                    <div class="email-checkbox">
-                                                        <input type="checkbox" id="chk2">
-                                                        <label class="toggle" for="chk2"></label>
-                                                    </div>
-                                                    <!-- <span class="star-toggle ti-star"></span> -->
+                                        @foreach($read as $gr)
+                                        <div class="read-content">
+                                            <div class="media pt-5">
+                                                @if($flag == 'inbox')
+                                                    <img height="100px" width="100px" class="mr-3 rounded-circle" src="{{asset('storage')}}/foto/dosen/{{ $gr->fotodsn }}">
+                                                @else
+                                                    <img height="100px" width="100px" class="mr-3 rounded-circle" src="{{asset('storage')}}/foto/mahasiswa/{{ $gr->fotomhs }}">
+                                                @endif
+                                                <div class="media-body">
+                                                    @if($flag == 'inbox')
+                                                        <h5 class="m-b-3">{{ $gr->namadsn }}</h5>
+                                                    @else
+                                                        <h5 class="m-b-3">{{ $gr->namadepan." ".$gr->namabelakang }}</h5>
+                                                    @endif
+                                                    
+                                                    <p class="m-b-2">{{ date('d/m/Y', strtotime($gr->created_at)) }}</p>
                                                 </div>
-                                                <div class="col-mail col-mail-2">
-                                                    <a href="{{ route('read.mahasiswa', ['flag'=>'inbox','kodemail'=>encrypt($inbx->id)]) }}">
-                                                        <div class="subject">{{ $inbx->subject }}</div>
-                                                        <div class="date">{{ date('d/m/Y', strtotime($inbx->created_at)) }}</div>
-                                                    </a>
+                                                
+                                            </div>
+                                            <hr>
+                                            <div class="media mb-4 mt-1">
+                                                <div class="media-body"><span class="float-right">&nbsp;</span>
+                                                    <h4 class="m-0 text-primary">{{ $gr->subject }}</h4><small class="text-muted">To:Me</small>
                                                 </div>
-                                            </a>
+                                            </div>
+                                            {!! $gr->body !!}
+                                            <hr>
+                                            <!-- <h6 class="p-t-15"><i class="fa fa-download mb-2"></i> Attachments <span>(3)</span></h6>
+                                            <div class="row m-b-30">
+                                                <div class="col-auto"><a href="#" class="text-muted">My-Photo.png</a>
+                                                </div>
+                                                <div class="col-auto"><a href="#" class="text-muted">My-File.docx</a>
+                                                </div>
+                                                <div class="col-auto"><a href="#" class="text-muted">My-Resume.pdf</a>
+                                                </div>
+                                            </div>
+                                            <hr>
+                                            <div class="form-group p-t-15">
+                                                <textarea class="w-100 p-20 l-border-1" name="" id="" cols="30" rows="5" placeholder="It's really an amazing.I want to know more about it..!"></textarea>
+                                            </div> -->
                                         </div>
                                         @endforeach
                                     </div>

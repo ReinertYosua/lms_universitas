@@ -15,9 +15,16 @@
                         </ul>
                     </li>
                     <li>
+                        @if(Auth::user()->usertype == 2 )
+                        <a href="{{ route('inbox.dosen') }}" aria-expanded="false">
+                            <i class="icon-envelope menu-icon"></i><span class="nav-text">Email</span>
+                        </a>
+                        @endif
+                        @if(Auth::user()->usertype == 3 )
                         <a href="{{ route('inbox.mahasiswa') }}" aria-expanded="false">
                             <i class="icon-envelope menu-icon"></i><span class="nav-text">Email</span>
                         </a>
+                        @endif
                     </li>
                 @auth
                     @if(Auth::user()->usertype == 1 )
@@ -59,6 +66,18 @@
                             @endauth
                             
                         </ul>
+                    </li>
+                    <li>
+                        @if(Auth::user()->usertype == 2 )
+                        <a href="{{ route('forum.dosen') }}" aria-expanded="false">
+                            <i class="fa fa-group menu-icon"></i><span class="nav-text">Forum</span>
+                        </a>
+                        @endif
+                        @if(Auth::user()->usertype == 3 )
+                        <a href="{{ route('forum.mahasiswa') }}" aria-expanded="false">
+                            <i class="fa fa-group menu-icon"></i><span class="nav-text">Forum</span>
+                        </a>
+                        @endif
                     </li>
                     <li class="mega-menu mega-menu-sm">
                         <a class="has-arrow" href="javascript:void()" aria-expanded="false">

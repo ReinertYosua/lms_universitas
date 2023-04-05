@@ -56,7 +56,7 @@
                                     <input type="hidden" id="kodemk" value="{{ encrypt($matkul[0]->kode_matakuliah) }}">
                                     <input type="hidden" id="periode" value="{{ $periode }}">
                                     <input type="hidden" id="session" value="{{ $lastsessionscore }}">
-                                    <input type="hidden" id="materi" value="{{ $dt->id }}">
+                                    <input type="hidden" id="materi" value="{{ $lastmateri }}">
                                     <!-- <a class="nav-item nav-link" href="#tab2" role="tab" data-toggle="tab">Tab 2</a> -->
                                     @endforeach
                                     <!-- <a class="nav-item nav-link" href="#tab2" role="tab" data-toggle="tab">Session 14</a> -->

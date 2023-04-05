@@ -1,5 +1,5 @@
 @extends('layouts.master')
-@section('title','Email Mahasiswa [Inbox]')
+@section('title','Email Dosen [Sent]')
 
 @section('content')
 <div class="container-fluid mt-3">
@@ -19,12 +19,13 @@
                     <div class="col-lg-12">
                         <div class="card">
                             <div class="card-body">
-                                <div class="email-left-box"><a href="{{ route('compose.mahasiswa') }}" class="btn btn-primary btn-block">Compose</a>
-                                    <div class="mail-list mt-4"><a href="{{ route('inbox.mahasiswa') }}" class="list-group-item border-0 p-r-0"><i class="fa fa-inbox font-18 align-middle mr-2"></i> <b>Inbox</b> <span class="badge badge-primary badge-sm float-right m-t-5">{{ session('totalnotif') }}</span> </a>
-                                        <a href="{{ route('sent.mahasiswa') }}" class="list-group-item border-0 p-r-0"><i class="fa fa-paper-plane font-18 align-middle mr-2"></i>Sent <span class="badge badge-primary badge-sm float-right m-t-5">{{ session('totalnotifsent') }}</span></a>  
+                                <div class="email-left-box"><a href="{{ route('compose.dosen') }}" class="btn btn-primary btn-block">Compose</a>
+                                    <div class="mail-list mt-4">
+                                        <a href="{{ route('inbox.dosen') }}" class="list-group-item border-0 p-r-0"><i class="fa fa-inbox font-18 align-middle mr-2"></i> <b>Inbox</b> <span class="badge badge-primary badge-sm float-right m-t-5">{{ session('totalnotif') }}</span> </a>
+                                        <a href="{{ route('sent.dosen') }}" class="list-group-item border-0 p-r-0"><i class="fa fa-paper-plane font-18 align-middle mr-2"></i>Sent <span class="badge badge-primary badge-sm float-right m-t-5">{{ session('totalnotifsent') }}</span> </a>  
                                         <!-- <a href="#" class="list-group-item border-0 p-r-0"><i class="fa fa-star-o font-18 align-middle mr-2"></i>Important <span class="badge badge-danger badge-sm float-right m-t-5">47</span> </a>
                                         <a href="#" class="list-group-item border-0 p-r-0"><i class="mdi mdi-file-document-box font-18 align-middle mr-2"></i>Draft</a> -->
-                                        <a href="{{ route('inbox.mahasiswa') }}" class="list-group-item border-0 p-r-0"><i class="fa fa-trash font-18 align-middle mr-2"></i>Trash</a>
+                                        <a href="{{ route('inbox.dosen') }}" class="list-group-item border-0 p-r-0"><i class="fa fa-trash font-18 align-middle mr-2"></i>Trash</a>
                                     </div>
                                     <!-- <h5 class="mt-5 m-b-10">Categories</h5>
                                     <div class="list-group mail-list"><a href="#" class="list-group-item border-0"><span class="fa fa-briefcase f-s-14 mr-2"></span>Work</a>  <a href="#" class="list-group-item border-0"><span class="fa fa-sellsy f-s-14 mr-2"></span>Private</a>  <a href="#"
@@ -42,7 +43,7 @@
                                         </div>
                                     </div>
                                     <div class="email-list m-t-15">
-                                        @foreach($inbox as $inbx)
+                                        @foreach($sent as $snt)
                                         <div class="message">
                                             <a href="email-read.html">
                                                 <div class="col-mail col-mail-1">
@@ -53,9 +54,9 @@
                                                     <!-- <span class="star-toggle ti-star"></span> -->
                                                 </div>
                                                 <div class="col-mail col-mail-2">
-                                                    <a href="{{ route('read.mahasiswa', ['flag'=>'inbox','kodemail'=>encrypt($inbx->id)]) }}">
-                                                        <div class="subject">{{ $inbx->subject }}</div>
-                                                        <div class="date">{{ date('d/m/Y', strtotime($inbx->created_at)) }}</div>
+                                                    <a href="{{ route('read.dosen', ['flag'=>'sent','kodemail'=>encrypt($snt->id)] ) }}">
+                                                        <div class="subject">{{ $snt->subject }}</div>
+                                                        <div class="date">{{ date('d/m/Y', strtotime($snt->created_at)) }}</div>
                                                     </a>
                                                 </div>
                                             </a>

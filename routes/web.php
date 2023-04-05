@@ -72,6 +72,7 @@ Route::group(['middleware'=>['auth']],function(){
             Route::post('/dosen/editdetailmaterimatakuliah', 'updatedetailcourse')->name('updatedetail.course');
             Route::get('/dosen/downloadmateri/{filemateri}', 'downloadmatericourse')->name('downloadmateridosen.course');
             Route::delete('/dosen/hapusmaterimatakuliah/{idmmk}/{idmk}', 'deletematericourse')->name('deletemateri.course');
+            Route::get('/dosen/detailjadwal/materi/{kodemk}/{idmateri}', 'detaillecturermateri')->name('detaillecturer.materi');
             
             Route::get('/dosen/filemateri/{idmkdet}/{idmk}', 'filemateri')->name('file.materi');
             Route::post('/dosen/filemateri', 'prosesfilemateri')->name('prosesfile.materi');
@@ -91,6 +92,17 @@ Route::group(['middleware'=>['auth']],function(){
         
             Route::get('/dosen/profile', 'profiledosen')->name('profil.dosen');
             Route::post('/dosen/profile', 'editprofil')->name('submitprofile.dosen');
+            
+            Route::get('/dosen/email', 'mailinboxdosen')->name('inbox.dosen');
+            Route::get('/dosen/email/compose', 'mailcomposedosen')->name('compose.dosen');
+            Route::post('/dosen/email/autocomplete', 'autocomplete')->name('autocomplete.dosen');
+            Route::post('/dosen/email/compose', 'kirimemaildosen')->name('kirimemail.dosen');
+            Route::get('/dosen/email/sent', 'mailsentdosen')->name('sent.dosen');
+            Route::get('/dosen/email/read/{flag}/{kodemail}', 'mailreaddosen')->name('read.dosen');
+
+            Route::get('/dosen/forum', 'forumdosen')->name('forum.dosen');
+            Route::get('/dosen/forum/matakuliah/{trkodemtk}/{periode}', 'forumcoursedosen')->name('forumcourse.dosen');
+            Route::get('/dosen/forum/matakuliah/create/thread/{kodemk}/{namamk}/{session}/{materi}/{periode}', 'createforumdosen')->name('createforum.dosen');
         });
     });
 
@@ -100,6 +112,7 @@ Route::group(['middleware'=>['auth']],function(){
             Route::get('/mahasiswa', 'index')->name('index.mahasiswa');
             Route::get('/mahasiswa/kuesioner', 'kuesioner')->name('tampil.kuesioner');
             Route::post('/mahasiswa/kuesioner', 'kuesionerstore')->name('kuesioner.store');
+
             Route::get('/mahasiswa/rencanastudi', 'enrollcourse')->name('enroll.course');
             Route::delete('/mahasiswa/daftarmatakuliah/{trid}/{namamtk}', 'deletetrcourse')->name('deletetr.course');
             Route::get('/mahasiswa/addmatakuliah/{mkkode}', 'addtrcourse')->name('addtr.course');
@@ -108,7 +121,17 @@ Route::group(['middleware'=>['auth']],function(){
             Route::get('/mahasiswa/downloadmateri/{filemateri}', 'downloadmatericourse')->name('downloadmateri.course');
             Route::get('/mahasiswa/detailjadwal/nilai/sesi/{kodemk}/{periode}/{session}', 'detailstudentscore')->name('detailstudent.score');
             Route::get('/mahasiswa/detailjadwal/materi/{kodemk}/{idmateri}', 'detailstudentmateri')->name('detailstudent.materi');
+
             Route::get('/mahasiswa/email', 'mailinbox')->name('inbox.mahasiswa');
+            Route::get('/mahasiswa/email/compose', 'mailcomposemhs')->name('compose.mahasiswa');
+            Route::post('/mahasiswa/email/autocomplete', 'autocomplete')->name('autocomplete.mahasiswa');
+            Route::post('/mahasiswa/email/compose', 'kirimemailmhs')->name('kirimemail.mahasiswa');
+            Route::get('/mahasiswa/email/sent', 'mailsentmhs')->name('sent.mahasiswa');
+            Route::get('/mahasiswa/email/read/{flag}/{kodemail}', 'mailreadmhs')->name('read.mahasiswa');
+
+            Route::get('/mahasiswa/forum', 'forummhs')->name('forum.mahasiswa');
+            Route::get('/mahasiswa/forum/matakuliah/{trkodemtk}/{periode}', 'forumcoursemhs')->name('forumcourse.mahasiswa');
+            Route::get('/mahasiswa/forum/matakuliah/create/thread/{kodemk}/{namamk}/{session}/{materi}/{periode}', 'createforummhs')->name('createforum.mahasiswa');
         });
     });
 });

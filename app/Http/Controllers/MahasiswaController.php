@@ -3,17 +3,20 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 use App\Models\Kuesioner as KuesionerModel;
 use App\Models\JawabanKuis as JawabanKuisModel;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User as UserModel;
 use App\Models\Mahasiswa as MahasiswaModel;
+use App\Models\Dosen as DosenModel;
 use App\Models\ScoreJawaban as ScoreModel;
 use App\Models\Periode as PeriodeModel;
 use App\Models\Matakuliah as MatakuliahModel;
 use App\Models\TransaksiMatakuliah as TransaksiMatakuliahModel;
 use App\Models\MateriMatakuliah as MateriMatakuliahModel;
 use App\Models\Scoring as ScoringModel;
+use App\Models\Email as EmailModel;
 use App\Models\FileMateri as FileMateriModel;
 use Carbon\Carbon;
 use DB;
@@ -22,8 +25,24 @@ use Illuminate\Support\Facades\Storage;
 class MahasiswaController extends Controller
 {
     //
+    public function notif(){
+        $totalNotifinbox = EmailModel::where('to_id', Auth::user()->id)->count('subject');
+        $totalNotifsent = EmailModel::where('from_id', Auth::user()->id)->count('subject');
+        $getmail = EmailModel::select('mailinbox.id', 'mailinbox.subject', 'mailinbox.body', 'a.name as sender', 'b.name as receiver', 'mailinbox.created_at')
+                    ->join('users as a', 'a.id', '=', 'mailinbox.from_id')
+                    ->join('users as b', 'b.id', '=', 'mailinbox.to_id')
+                    ->where('mailinbox.to_id', Auth::user()->id)
+                    ->get();
+        session(['totalnotif'=>$totalNotifinbox, 'inbox'=>$getmail, 'totalnotifsent'=>$totalNotifsent]);
+
+        $allSessions = session()->all();
+
+        return $allSessions;
+    }
+
     public function index(){
-        //echo "halaman mhs";
+        
+        $this->notif();
 
         $user=Auth::user();
         $getnim = UserModel::join('mahasiswa', 'users.id', '=', 'mahasiswa.user_id')
@@ -431,14 +450,28 @@ class MahasiswaController extends Controller
         if(!$getPeriode->isEmpty())
         {
             //get data matkul yang dipilih
-            $gettransaksi = TransaksiMatakuliahModel::join('mahasiswa', 'mahasiswa.nim', '=', 'transaksimatakuliah.nim')
-            ->join('matakuliah','matakuliah.kode_matakuliah','=','transaksimatakuliah.kode_matakuliah')
-            ->where([
-                ["mahasiswa.nim", "=", $getnim[0]->nim],
-                ["transaksimatakuliah.periode","=",$getPeriode[0]->kode_periode]
-            ])
-            ->select('transaksimatakuliah.id','transaksimatakuliah.periode','transaksimatakuliah.kode_matakuliah','matakuliah.nama_matakuliah','matakuliah.sks','matakuliah.deskripsi')
-            ->get();
+            // $gettransaksi = TransaksiMatakuliahModel::join('mahasiswa', 'mahasiswa.nim', '=', 'transaksimatakuliah.nim')
+            // ->join('matakuliah','matakuliah.kode_matakuliah','=','transaksimatakuliah.kode_matakuliah')
+            // ->where([
+            //     ["mahasiswa.nim", "=", $getnim[0]->nim],
+            //     ["transaksimatakuliah.periode","=",$getPeriode[0]->kode_periode]
+            // ])
+            // ->select('transaksimatakuliah.id','transaksimatakuliah.periode','transaksimatakuliah.kode_matakuliah','matakuliah.nama_matakuliah','matakuliah.sks','matakuliah.deskripsi')
+            // ->get();
+            $gettransaksi = TransaksiMatakuliahModel::select('transaksimatakuliah.id', 'transaksimatakuliah.periode', 'transaksimatakuliah.kode_matakuliah', 'matakuliah.nama_matakuliah', 'matakuliah.sks', 'matakuliah.deskripsi')
+                            ->join('mahasiswa', 'mahasiswa.nim', '=', 'transaksimatakuliah.nim')
+                            ->join('matakuliah', 'matakuliah.kode_matakuliah', '=', 'transaksimatakuliah.kode_matakuliah')
+                            ->join('materi_matakuliah', 'materi_matakuliah.id_matakuliah', '=', 'matakuliah.id')
+                            ->where([
+                            ['mahasiswa.nim', '=', $getnim[0]->nim],
+                            ['transaksimatakuliah.periode', '=', $getPeriode[0]->kode_periode]
+                            ])
+                            ->groupBy('transaksimatakuliah.kode_matakuliah')
+                            ->get();
+
+
+
+
             
         }
 
@@ -475,9 +508,14 @@ class MahasiswaController extends Controller
                                 ->where('scoring.nim', '=', $getnim[0]->nim)
                                 ->whereNotIn('scoring.kategori_ujian', ['UTS', 'UAS'])
                                 ->get();
+        $getlastmateri = MateriMatakuliahModel::join('matakuliah','matakuliah.id','=','materi_matakuliah.id_matakuliah')
+                                ->select('materi_matakuliah.id as id_materi_mtk','materi_matakuliah.session')
+                                ->where([["matakuliah.kode_matakuliah", "=", decrypt($trkodemtk)]])
+                                ->where([["materi_matakuliah.session", "=", $getlastscoresession[0]->last_session]])
+                                ->get();
         //dd($getlastscoresession[0]->last_session);
 
-        return view('layouts.student.detailcourse')->with(['detailjadwal'=>$getmateri,'matkul'=>$matakuliah,'periode'=>$periode,'gabel'=>$getgayabelajar[0]->dominan,'lastsessionscore'=>$getlastscoresession[0]->last_session]);
+        return view('layouts.student.detailcourse')->with(['detailjadwal'=>$getmateri,'matkul'=>$matakuliah,'periode'=>$periode,'gabel'=>$getgayabelajar[0]->dominan,'lastsessionscore'=>$getlastscoresession[0]->last_session,'lastmateri'=>$getlastmateri[0]->id_materi_mtk]);
         
     }
 
@@ -652,7 +690,193 @@ class MahasiswaController extends Controller
     }
 
     public function mailinbox(){
-        return view('layouts.student.mailinboxmhs');
+        $this->notif();
+
+        $getmail = EmailModel::select('mailinbox.id', 'mailinbox.subject', 'mailinbox.body', 'a.name as sender', 'b.name as receiver', 'mailinbox.created_at')
+                    ->join('users as a', 'a.id', '=', 'mailinbox.from_id')
+                    ->join('users as b', 'b.id', '=', 'mailinbox.to_id')
+                    ->where('mailinbox.to_id', Auth::user()->id)
+                    ->orderBy('mailinbox.created_at', 'desc')
+                    ->get();
+        //dd($getmail);
+        return view('layouts.student.mailinboxmhs')->with('inbox',$getmail);
+    }
+
+    public function mailcomposemhs(){
+        $this->notif();
+
+        return view('layouts.student.mailcomposemhs');
+    }
+
+    public function autocomplete(Request $request){
+        //dd($request->search);
+        $dosens = DosenModel::select('dosen.*')
+                    ->join('users', 'users.id', '=', 'dosen.user_id')
+                    ->where('dosen.namadsn', 'like', '%'. $request->search. '%')
+                    ->get();
+
+        //dd($mahasiswas);
+        //return response()->json($data);
+        $output = '<ul class="dropdown-menu" style="display:block; position:relative; width:100%">';
+        $data = array();
+        foreach ($dosens as $dosen) {
+            $output .='<li><a class="dropdown-item listuser" href="#" data-id="'.$dosen->user_id.'" data-fullname="'.$dosen->namadsn.'">'.$dosen->namadsn.'</a></li>';
+            //$data[] = array('value'=>$mahasiswa->namadepan.' '.$mahasiswa->namabelakang);
+        }
+        $output .='</ul>';
+        echo $output;
+        // if(count($data))
+        //      return response()->json($data);
+        // else
+        //      return response()->json(['value'=>'No Result Found']);
+    }
+
+    public function kirimemailmhs(Request $request){
+        //dd($request);
+        $rules =[
+            //'nidn' => 'required|unique:dosen,nidn',
+            //'nama' => 'required',
+            //'tgllahir' => 'required',
+            //'tempatlahir' => 'required',
+            //'jeniskelamin' => 'required',
+            //'alamat' => 'required',
+            //'foto' => 'required',
+            //'tlp' => 'required',
+            //'email' => 'required|email',
+            'search' => 'required',
+            'subject' => 'required',
+            'bodyemail' => 'required'
+        ];
+        $id=
+        [
+            'required' => ':attribute wajib diisi.',
+        ];
+
+        $validator = Validator::make($request->all(),$rules,$id);
+        
+        if ($validator->fails()) {
+			return redirect()->back()
+			->withInput()
+			->withErrors($validator);
+		}else{
+            $mail=EmailModel::create([
+                'subject' => $request->subject,
+                'to_id' => $request->user_id,
+                'from_id' => Auth::user()->id,
+                'body' => $request->bodyemail,
+            ]);
+            return redirect()->route('inbox.mahasiswa')->with('success','Email Berhasil dikirim.');
+        }
+    }
+
+    public function mailsentmhs(){
+        $this->notif();
+        $getmail = EmailModel::select('mailinbox.id', 'mailinbox.subject', 'mailinbox.body', 'a.name as sender', 'b.name as receiver', 'mailinbox.created_at')
+        ->join('users as a', 'a.id', '=', 'mailinbox.from_id')
+        ->join('users as b', 'b.id', '=', 'mailinbox.to_id')
+        ->where('mailinbox.from_id', Auth::user()->id)
+        ->orderBy('mailinbox.created_at', 'desc')
+        ->get();
+        //dd($getmail);
+
+        return view('layouts.student.mailsentmhs')
+                ->with('sent',$getmail);
+    }
+
+    public function mailreadmhs($flag,$kodemail){
+        if($flag=="inbox"){
+            $getread = EmailModel::select('mailinbox.id', 'mailinbox.subject', 'mailinbox.body', 'mailinbox.created_at','a.email','c.*')
+            ->join('users as a', 'a.id', '=', 'mailinbox.from_id')
+            ->join('dosen as c', 'c.user_id','=','a.id')
+            ->where('mailinbox.id', decrypt($kodemail))
+            ->get();
+        }else if($flag=="sent"){
+            $getread = EmailModel::select('mailinbox.id', 'mailinbox.subject', 'mailinbox.body', 'mailinbox.created_at','a.email','d.*')
+            ->join('users as a', 'a.id', '=', 'mailinbox.from_id')
+            ->join('mahasiswa as d', 'd.user_id','=','a.id')
+            ->where('mailinbox.id', decrypt($kodemail))
+            ->get();
+        }
+        
+        //dd($getread);
+        return view('layouts.student.mailreadmhs')
+                ->with('read',$getread)
+                ->with('flag',$flag);
+    }
+
+    public function forummhs(){
+        // get nim from user login
+        $user=Auth::user();
+        $getnim = UserModel::join('mahasiswa', 'users.id', '=', 'mahasiswa.user_id')
+                    ->where([
+                        ["mahasiswa.user_id", "=", $user->id],
+                    ])
+                    ->get("mahasiswa.nim");
+
+        //get periode by tanggal berjalan
+        $todayDate = Carbon::now();
+        $getPeriode = PeriodeModel::whereRaw('tanggal_awal <= ? and tanggal_akhir >= ?', [$todayDate, $todayDate])->get();
+        $periodtr ="";
+        //dd($getPeriode[0]->kode_periode);
+        if(!$getPeriode->isEmpty())
+        {
+            // $resultschedule = TransaksiMatakuliahModel::select(
+            //             'transaksimatakuliah.id',
+            //             'transaksimatakuliah.periode',
+            //             'transaksimatakuliah.kode_matakuliah',
+            //             'matakuliah.nama_matakuliah',
+            //             'matakuliah.sks',
+            //             'matakuliah.deskripsi',
+            //             DB::raw('COUNT(transaksimatakuliah.nim) as total_mahasiswa')
+            //         )
+            //         ->join('matakuliah', 'matakuliah.kode_matakuliah', '=', 'transaksimatakuliah.kode_matakuliah')
+            //         ->join('dosen', 'dosen.id', '=', 'matakuliah.id_dosen')
+            //         ->where('periode', $getPeriode[0]->kode_periode)
+            //         ->where('matakuliah.id_dosen', $getiddosen[0]->id)
+            //         ->groupBy('transaksimatakuliah.kode_matakuliah')
+            //         ->get();
+
+            $resultschedule = TransaksiMatakuliahModel::select('transaksimatakuliah.id', 'transaksimatakuliah.periode', 'transaksimatakuliah.kode_matakuliah', 'matakuliah.nama_matakuliah', 'matakuliah.sks', 'matakuliah.deskripsi')
+            ->join('mahasiswa', 'mahasiswa.nim', '=', 'transaksimatakuliah.nim')
+            ->join('matakuliah', 'matakuliah.kode_matakuliah', '=', 'transaksimatakuliah.kode_matakuliah')
+            ->join('materi_matakuliah', 'materi_matakuliah.id_matakuliah', '=', 'matakuliah.id')
+            ->where([
+            ['mahasiswa.nim', '=', $getnim[0]->nim],
+            ['transaksimatakuliah.periode', '=', $getPeriode[0]->kode_periode]
+            ])
+            ->groupBy('transaksimatakuliah.kode_matakuliah')
+            ->get();
+        }
+        
+                    $getperiod = PeriodeModel::all();
+                    return view('layouts.student.forummahasiswa')->with(['listperiode'=>$getperiod,'transaksi'=>$resultschedule,'periode'=>$getPeriode[0]->kode_periode]);
+    }
+
+    public function forumcoursemhs($trkodemtk, $periode){
+        //dd(decrypt($trkodemtk)." - ".decrypt($periode));
+        $matakuliah = MatakuliahModel::where('matakuliah.kode_matakuliah','=',decrypt($trkodemtk))
+                        ->get();
+        $getmateri = MateriMatakuliahModel::join('matakuliah','matakuliah.id','=','materi_matakuliah.id_matakuliah')
+                    ->where([["matakuliah.kode_matakuliah", "=", decrypt($trkodemtk)]])
+                    ->select('materi_matakuliah.id','materi_matakuliah.session','materi_matakuliah.materi','materi_matakuliah.deskripsi','materi_matakuliah.referensi','materi_matakuliah.tingkat_kesulitan')
+                    ->get();
+        $getlastscoresession = ScoringModel::selectRaw('MAX(scoring.kategori_ujian) as last_session')
+                    ->where('scoring.periode', '=',  decrypt($periode))
+                    ->where('scoring.kode_matakuliah', '=', decrypt($trkodemtk))
+                    ->whereNotIn('scoring.kategori_ujian', ['UTS', 'UAS'])
+                    ->get();
+
+        return view('layouts.student.forumcourse')->with(['detailjadwal'=>$getmateri,'matkul'=>$matakuliah,'periode'=>$periode, 'lastsessionscore'=>$getlastscoresession[0]->last_session]);
+    }
+
+    public function createforummhs($kodemk,$namamk, $session,$materi,$periode){
+       // dd(decrypt($kodemk)." - ".decrypt($periode));
+        
+        return view('layouts.student.createforum')->with('kodemk',decrypt($kodemk))
+                ->with('namamk',$namamk)
+                ->with('session', $session)
+                ->with('materi', $materi)
+                ->with('periode', decrypt($periode));
     }
 
 }
