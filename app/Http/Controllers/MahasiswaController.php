@@ -32,6 +32,7 @@ class MahasiswaController extends Controller
                     ->join('users as a', 'a.id', '=', 'mailinbox.from_id')
                     ->join('users as b', 'b.id', '=', 'mailinbox.to_id')
                     ->where('mailinbox.to_id', Auth::user()->id)
+                    ->orderBy('mailinbox.created_at', 'desc')
                     ->get();
         session(['totalnotif'=>$totalNotifinbox, 'inbox'=>$getmail, 'totalnotifsent'=>$totalNotifsent]);
 
@@ -105,6 +106,7 @@ class MahasiswaController extends Controller
     }
 
     public function kuesionerstore(Request $request){
+        //dd($request);
         $active= 0;
         $reflective= 0;
         $sensing= 0;
@@ -279,7 +281,7 @@ class MahasiswaController extends Controller
             $v_verbal = 0;
         }else{
             $v_visual = 0;
-            $verbal = $verbal-$visual;
+            $v_verbal = $verbal-$visual;
         }
 
         if($sequential>$global){

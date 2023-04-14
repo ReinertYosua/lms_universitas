@@ -33,7 +33,7 @@
             </div>
             @foreach($transaksi as $tr)
             <div class="col-lg-3 col-sm-6">
-                <a href="{{ route('forumcourse.mahasiswa',['trkodemtk'=> encrypt($tr->kode_matakuliah), 'periode'=>encrypt($tr->periode)]) }}">
+                <a href="{{ route('forumcourse.dosen',['trkodemtk'=> encrypt($tr->kode_matakuliah), 'periode'=>encrypt($tr->periode)]) }}">
                 <div class="card gradient-{{$loop->iteration}}">
                     <div class="card-body">
                         <h3 class="card-title text-white">{{$tr->kode_matakuliah." - ".$tr->nama_matakuliah}}</h3>
