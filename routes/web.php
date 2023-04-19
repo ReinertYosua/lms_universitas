@@ -103,6 +103,9 @@ Route::group(['middleware'=>['auth']],function(){
             Route::get('/dosen/forum', 'forumdosen')->name('forum.dosen');
             Route::get('/dosen/forum/matakuliah/{trkodemtk}/{periode}', 'forumcoursedosen')->name('forumcourse.dosen');
             Route::get('/dosen/forum/matakuliah/create/thread/{kodemk}/{namamk}/{session}/{materi}/{periode}', 'createforumdosen')->name('createforum.dosen');
+
+            Route::get('/dosen/interaksi', 'interaksidosen')->name('interaksi.dosen');
+            Route::get('/dosen/infogayabelajar', 'infogayabelajar')->name('infogayabelajar.dosen');
         });
     });
 

@@ -1396,4 +1396,12 @@ class DosenController extends Controller
                 ->with('materi', $materi)
                 ->with('periode', decrypt($periode));
     }
+
+    public function interaksidosen(){
+        return view('layouts.lecturer.interaksi');
+    }
+
+    public function infogayabelajar(){
+        return view('layouts.lecturer.infogayabelajar');
+    }
 }

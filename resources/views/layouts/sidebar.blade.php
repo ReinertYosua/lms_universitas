@@ -1,9 +1,9 @@
 <!--**********************************
             Sidebar start
-        ***********************************-->
-        <div class="nk-sidebar">           
-            <div class="nk-nav-scroll">
-                <ul class="metismenu" id="menu">
+        ***********************************66CED6-->
+        <div class="nk-sidebar" style="background:#B6DCFE">           
+            <div class="nk-nav-scroll" >
+                <ul class="metismenu" id="menu" style="background:#B6DCFE">
                     <li class="nav-label">Menu</li>
                     <li>
                         <a class="has-arrow" href="javascript:void()" aria-expanded="false">
@@ -13,6 +13,20 @@
                             <li><a href="/">Home </a></li>
                             <!-- <li><a href="./index-2.html">Home 2</a></li> -->
                         </ul>
+                    </li>
+                    <li>
+                        @if(Auth::user()->usertype == 2 )
+                        <a href="{{ route('interaksi.dosen') }}" aria-expanded="false">
+                            <i class="fa fa-group menu-icon"></i><span class="nav-text">Graph Interaksi</span>
+                        </a>
+                        @endif
+                    </li>
+                    <li>
+                        @if(Auth::user()->usertype == 2 )
+                        <a href="{{ route('infogayabelajar.dosen') }}" aria-expanded="false">
+                            <i class="fa fa-info-circle menu-icon"></i><span class="nav-text">Informasi Gaya Belajar</span>
+                        </a>
+                        @endif
                     </li>
                     <li>
                         @if(Auth::user()->usertype == 2 )
