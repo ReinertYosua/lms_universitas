@@ -991,6 +991,9 @@ class MahasiswaController extends Controller
                             ->get();
 
         //dd($detfeedbackscoring);
+        if($detfeedbackscoring->isEmpty()){
+            return redirect()->route('listcoursescore.mahasiswa')->with('danger','Nilai belum diinput');
+        }
 
         return view('layouts.student.detailscore')->with('detailscorefeedback',$detfeedbackscoring);
 

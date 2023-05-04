@@ -14,6 +14,7 @@
             </div>
             <!-- row -->
             @include("partial.successalert")
+            @include("partial.dangeralert")
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-12">
@@ -42,7 +43,7 @@
                                                 <td>{{ $mk->nama_matakuliah }}</td>
                                                 <td>{{ $mk->sks }}</td>
                                                 <td>
-                                                    <a href="{{ route('detailscore.mahasiswa', ['kodemk'=>encrypt($mk->kode_matakuliah),'periode'=>encrypt($periode)])}}" class=" btn btn-success" data-toggle="tooltip" data-placement="top" data-original-title="Input & Edit Nilai"><i class="fa fa-info-circle"></i>&nbsp;Lihat Nilai</a>
+                                                    <a href="{{ route('detailscore.mahasiswa', ['kodemk'=>encrypt($mk->kode_matakuliah),'periode'=>encrypt($periode)])}}" class=" btn btn-success" data-toggle="tooltip" data-placement="top" data-original-title="Lihat Nilai"><i class="fa fa-info-circle"></i>&nbsp;Lihat Nilai</a>
                                                 </td>
                                             </tr>
                                             @endforeach
