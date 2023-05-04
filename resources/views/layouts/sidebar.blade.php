@@ -20,6 +20,11 @@
                             <i class="fa fa-group menu-icon"></i><span class="nav-text">Graph Interaksi</span>
                         </a>
                         @endif
+                        @if(Auth::user()->usertype == 3 )
+                        <a href="{{ route('interaksi.mahasiswa') }}" aria-expanded="false">
+                            <i class="fa fa-group menu-icon"></i><span class="nav-text">Graph Interaksi</span>
+                        </a>
+                        @endif
                     </li>
                     <li>
                         @if(Auth::user()->usertype == 2 )
@@ -102,7 +107,7 @@
                             <li><a href="{{ route('listcourse.score') }}">Nilai</a></li>
                             @endif
                             @if(Auth::user()->usertype == 3 )
-                            <li><a href="#">Lihat Nilai</a></li>
+                            <li><a href="{{ route('listcoursescore.mahasiswa') }}">Lihat Nilai</a></li>
                             @endif
                         </ul>
                     </li>

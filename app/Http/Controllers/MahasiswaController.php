@@ -510,14 +510,21 @@ class MahasiswaController extends Controller
                                 ->where('scoring.nim', '=', $getnim[0]->nim)
                                 ->whereNotIn('scoring.kategori_ujian', ['UTS', 'UAS'])
                                 ->get();
+        //$getlastscoresession[0]->last_session;
+        if($getlastscoresession[0]->last_session == null){
+            $last_session = 1;
+        }else{
+            $last_session=$getlastscoresession[0]->last_session;
+        }
+        
         $getlastmateri = MateriMatakuliahModel::join('matakuliah','matakuliah.id','=','materi_matakuliah.id_matakuliah')
                                 ->select('materi_matakuliah.id as id_materi_mtk','materi_matakuliah.session')
                                 ->where([["matakuliah.kode_matakuliah", "=", decrypt($trkodemtk)]])
-                                ->where([["materi_matakuliah.session", "=", $getlastscoresession[0]->last_session]])
+                                ->where([["materi_matakuliah.session", "=", $last_session]])
                                 ->get();
         //dd($getlastscoresession[0]->last_session);
 
-        return view('layouts.student.detailcourse')->with(['detailjadwal'=>$getmateri,'matkul'=>$matakuliah,'periode'=>$periode,'gabel'=>$getgayabelajar[0]->dominan,'lastsessionscore'=>$getlastscoresession[0]->last_session,'lastmateri'=>$getlastmateri[0]->id_materi_mtk]);
+        return view('layouts.student.detailcourse')->with(['detailjadwal'=>$getmateri,'matkul'=>$matakuliah,'periode'=>$periode,'gabel'=>$getgayabelajar[0]->dominan,'lastsessionscore'=>$last_session,'lastmateri'=>$getlastmateri[0]->id_materi_mtk]);
         
     }
 
@@ -879,6 +886,118 @@ class MahasiswaController extends Controller
                 ->with('session', $session)
                 ->with('materi', $materi)
                 ->with('periode', decrypt($periode));
+    }
+
+    public function listcoursescore(){
+        $user=Auth::user();
+        $getnim = UserModel::join('mahasiswa', 'users.id', '=', 'mahasiswa.user_id')
+                    ->where([
+                        ["mahasiswa.user_id", "=", $user->id],
+                    ])
+                    ->get("mahasiswa.nim");
+
+        $todayDate = Carbon::now();
+        //dd($todayDate);
+        $getPeriode = PeriodeModel::whereRaw('tanggal_awal <= ? and tanggal_akhir >= ?', [$todayDate, $todayDate])->get();
+
+        if(!$getPeriode->isEmpty())
+        {
+            //get data matkul yang dipilih
+            // $gettransaksi = TransaksiMatakuliahModel::join('mahasiswa', 'mahasiswa.nim', '=', 'transaksimatakuliah.nim')
+            // ->join('matakuliah','matakuliah.kode_matakuliah','=','transaksimatakuliah.kode_matakuliah')
+            // ->where([
+            //     ["mahasiswa.nim", "=", $getnim[0]->nim],
+            //     ["transaksimatakuliah.periode","=",$getPeriode[0]->kode_periode]
+            // ])
+            // ->select('transaksimatakuliah.id','transaksimatakuliah.periode','transaksimatakuliah.kode_matakuliah','matakuliah.nama_matakuliah','matakuliah.sks','matakuliah.deskripsi')
+            // ->get();
+            $gettransaksi = TransaksiMatakuliahModel::select('transaksimatakuliah.id', 'transaksimatakuliah.periode', 'transaksimatakuliah.kode_matakuliah', 'matakuliah.nama_matakuliah', 'matakuliah.sks', 'matakuliah.deskripsi')
+                            ->join('mahasiswa', 'mahasiswa.nim', '=', 'transaksimatakuliah.nim')
+                            ->join('matakuliah', 'matakuliah.kode_matakuliah', '=', 'transaksimatakuliah.kode_matakuliah')
+                            ->join('materi_matakuliah', 'materi_matakuliah.id_matakuliah', '=', 'matakuliah.id')
+                            ->where([
+                            ['mahasiswa.nim', '=', $getnim[0]->nim],
+                            ['transaksimatakuliah.periode', '=', $getPeriode[0]->kode_periode]
+                            ])
+                            ->groupBy('transaksimatakuliah.kode_matakuliah')
+                            ->get();
+
+
+
+
+            
+        }
+
+
+        $getperiod = PeriodeModel::all();
+        //dd($gettransaksi);
+        return view('layouts.student.listcoursescore')->with(['listperiode'=>$getperiod,'transaksi'=>$gettransaksi,'periode'=>$getPeriode[0]->kode_periode]);
+
+    }
+
+    public function detailscore($kodemk, $periode){
+        $user=Auth::user();
+        $getnim = UserModel::join('mahasiswa', 'users.id', '=', 'mahasiswa.user_id')
+                    ->where([
+                        ["mahasiswa.user_id", "=", $user->id],
+                    ])
+                    ->get("mahasiswa.nim");
+        
+        $detfeedbackscoring = ScoringModel::select(
+                                'scoring.periode',
+                                'scoring.nim',
+                                'scoring.kode_matakuliah',
+                                'matakuliah.nama_matakuliah',
+                                'mahasiswa.namadepan', 
+                                'mahasiswa.namabelakang', 
+                                DB::raw("MAX(CASE WHEN scoring.kategori_ujian = '1' THEN scoring.final_score END) AS nilaisesi1"),
+                                DB::raw("MAX(CASE WHEN scoring.kategori_ujian = '1' THEN feedback.saran END) AS feedbacksesi1"),
+                                DB::raw("MAX(CASE WHEN scoring.kategori_ujian = '2' THEN scoring.final_score END) AS nilaisesi2"),
+                                DB::raw("MAX(CASE WHEN scoring.kategori_ujian = '2' THEN feedback.saran END) AS feedbacksesi2"),
+                                DB::raw("MAX(CASE WHEN scoring.kategori_ujian = '3' THEN scoring.final_score END) AS nilaisesi3"),
+                                DB::raw("MAX(CASE WHEN scoring.kategori_ujian = '3' THEN feedback.saran END) AS feedbacksesi3"),
+                                DB::raw("MAX(CASE WHEN scoring.kategori_ujian = '4' THEN scoring.final_score END) AS nilaisesi4"),
+                                DB::raw("MAX(CASE WHEN scoring.kategori_ujian = '4' THEN feedback.saran END) AS feedbacksesi4"),
+                                DB::raw("MAX(CASE WHEN scoring.kategori_ujian = '5' THEN scoring.final_score END) AS nilaisesi5"),
+                                DB::raw("MAX(CASE WHEN scoring.kategori_ujian = '5' THEN feedback.saran END) AS feedbacksesi5"),
+                                DB::raw("MAX(CASE WHEN scoring.kategori_ujian = '6' THEN scoring.final_score END) AS nilaisesi6"),
+                                DB::raw("MAX(CASE WHEN scoring.kategori_ujian = '6' THEN feedback.saran END) AS feedbacksesi6"),
+                                DB::raw("MAX(CASE WHEN scoring.kategori_ujian = '7' THEN scoring.final_score END) AS nilaisesi7"),
+                                DB::raw("MAX(CASE WHEN scoring.kategori_ujian = '7' THEN feedback.saran END) AS feedbacksesi7"),
+                                DB::raw("MAX(CASE WHEN scoring.kategori_ujian = '8' THEN scoring.final_score END) AS nilaisesi8"),
+                                DB::raw("MAX(CASE WHEN scoring.kategori_ujian = '8' THEN feedback.saran END) AS feedbacksesi8"),
+                                DB::raw("MAX(CASE WHEN scoring.kategori_ujian = '9' THEN scoring.final_score END) AS nilaisesi9"),
+                                DB::raw("MAX(CASE WHEN scoring.kategori_ujian = '9' THEN feedback.saran END) AS feedbacksesi9"),
+                                DB::raw("MAX(CASE WHEN scoring.kategori_ujian = '10' THEN scoring.final_score END) AS nilaisesi10"),
+                                DB::raw("MAX(CASE WHEN scoring.kategori_ujian = '10' THEN feedback.saran END) AS feedbacksesi10"),
+                                DB::raw("MAX(CASE WHEN scoring.kategori_ujian = '11' THEN scoring.final_score END) AS nilaisesi11"),
+                                DB::raw("MAX(CASE WHEN scoring.kategori_ujian = '11' THEN feedback.saran END) AS feedbacksesi11"),
+                                DB::raw("MAX(CASE WHEN scoring.kategori_ujian = '12' THEN scoring.final_score END) AS nilaisesi12"),
+                                DB::raw("MAX(CASE WHEN scoring.kategori_ujian = '12' THEN feedback.saran END) AS feedbacksesi12"),
+                                DB::raw("MAX(CASE WHEN scoring.kategori_ujian = '13' THEN scoring.final_score END) AS nilaisesi13"),
+                                DB::raw("MAX(CASE WHEN scoring.kategori_ujian = '13' THEN feedback.saran END) AS feedbacksesi13"),
+                                DB::raw("MAX(CASE WHEN scoring.kategori_ujian = 'UTS' THEN scoring.final_score END) AS nilaisesiUTS"),
+                                DB::raw("MAX(CASE WHEN scoring.kategori_ujian = 'UTS' THEN feedback.saran END) AS feedbacksesiUTS"),
+                                DB::raw("MAX(CASE WHEN scoring.kategori_ujian = 'UAS' THEN scoring.final_score END) AS nilaisesiUAS"),
+                                DB::raw("MAX(CASE WHEN scoring.kategori_ujian = 'UAS' THEN feedback.saran END) AS feedbacksesiUAS")
+                            )
+                            ->join('feedback', 'feedback.id_scoring', '=', 'scoring.id')
+                            ->join('mahasiswa', 'mahasiswa.nim', '=', 'scoring.nim')
+                            ->join('matakuliah', 'matakuliah.kode_matakuliah','=','scoring.kode_matakuliah')
+                            ->where('scoring.kode_matakuliah', '=', decrypt($kodemk))
+                            ->where('scoring.periode', '=', decrypt($periode))
+                            ->where('mahasiswa.nim','=',$getnim[0]->nim)
+                            ->groupBy('scoring.periode', 'scoring.nim', 'scoring.kode_matakuliah')
+                            ->get();
+
+        //dd($detfeedbackscoring);
+
+        return view('layouts.student.detailscore')->with('detailscorefeedback',$detfeedbackscoring);
+
+    }
+
+    public function interaksimahasiswa(){
+        return view('layouts.student.interaksi');
     }
 
 }

@@ -135,6 +135,11 @@ Route::group(['middleware'=>['auth']],function(){
             Route::get('/mahasiswa/forum', 'forummhs')->name('forum.mahasiswa');
             Route::get('/mahasiswa/forum/matakuliah/{trkodemtk}/{periode}', 'forumcoursemhs')->name('forumcourse.mahasiswa');
             Route::get('/mahasiswa/forum/matakuliah/create/thread/{kodemk}/{namamk}/{session}/{materi}/{periode}', 'createforummhs')->name('createforum.mahasiswa');
+
+            Route::get('/mahasiswa/nilai', 'listcoursescore')->name('listcoursescore.mahasiswa');
+            Route::get('/mahasiswa/nilai/{kodemk}/{periode}', 'detailscore')->name('detailscore.mahasiswa');
+
+            Route::get('/mahasiswa/interaksi', 'interaksimahasiswa')->name('interaksi.mahasiswa');
         });
     });
 });
