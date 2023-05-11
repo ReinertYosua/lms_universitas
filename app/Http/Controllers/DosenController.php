@@ -321,6 +321,19 @@ class DosenController extends Controller
             'email' => ':attribute harus diisi dengan alamat email yang valid.',
         ]; 
         $validator = Validator::make($request->all(),$rules,$id);
+        $sessionexists=MateriMatakuliahModel::where('id_matakuliah','=',decrypt($request->id_mtk))->where('session','=',$request->session)->exists();
+        //dd($sessionexists);
+        if($sessionexists){
+            //cek jika session sudah ada
+            $validator->after(function ($validator) {
+
+                if (request('event') == null) {
+                    //add custom error to the Validator
+                    $validator->errors()->add('session', 'Session sudah ada');
+                }
+            
+            });
+        }
         if ($validator->fails()) {
 			return redirect()->back()
 			->withInput()
